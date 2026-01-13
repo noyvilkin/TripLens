@@ -26,27 +26,33 @@ class FeedAdapter : ListAdapter<Post, FeedAdapter.PostViewHolder>(PostDiffCallba
             binding.tvDestination.text = post.destination
             binding.tvPostTitle.text = post.title
             binding.tvPostDescription.text = post.description
-            binding.tvCountryInfo.text = "Capital: ${post.countryCapital} | Pop: ${post.countryPopulation}"
-            binding.tvWeatherInfo.text = "Weather: ${post.temperature}°C, ${post.weatherCondition}"
 
-            // Main Travel Image
+            // Maintaining placeholders
+            val capital = post.countryCapital.ifEmpty { "Loading..." }
+            val population = post.countryPopulation.ifEmpty { "..." }
+            binding.tvCountryInfo.text = "Capital: $capital | Pop: $population"
+
+            val temp = post.temperature.ifEmpty { "--" }
+            val condition = post.weatherCondition.ifEmpty { "Fetching weather" }
+            binding.tvWeatherInfo.text = "Weather: $temp°C, $condition"
+
+            // Main Travel Image with cleaner error handling
             if (post.travelImage.isNotEmpty()) {
                 Picasso.get()
                     .load(post.travelImage)
-                    .placeholder(android.R.drawable.progress_horizontal) // Shows while loading
-                    .error(android.R.drawable.stat_notify_error)       // Shows if link is broken
+                    .placeholder(android.R.drawable.ic_menu_gallery)
+                    .error(android.R.drawable.ic_menu_report_image) // Better than the red "!"
                     .into(binding.ivPostImage)
             }
 
-            // Profile Picture Adjustment
+            // Profile Picture
             if (post.userProfileImage.isNotEmpty()) {
                 Picasso.get()
                     .load(post.userProfileImage)
-                    .placeholder(android.R.drawable.ic_menu_gallery) // Default icon while loading
+                    .placeholder(android.R.drawable.ic_menu_compass)
                     .into(binding.ivUserProfile)
             } else {
-                // Fallback if URL is empty
-                binding.ivUserProfile.setImageResource(android.R.drawable.ic_menu_gallery)
+                binding.ivUserProfile.setImageResource(android.R.drawable.ic_menu_compass)
             }
         }
     }
