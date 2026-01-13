@@ -18,6 +18,7 @@ lifecycle = "2.8.7"
 # External Integrations (Mandatory for REST API & Social)
 firebaseBom = "33.7.0"
 retrofit = "2.9.0"
+picasso = "2.71828"
 
 # Testing
 junit = "4.13.2"
@@ -49,6 +50,9 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 # Retrofit (External REST API Integration Requirement)
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+
+# Picasso
+picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
