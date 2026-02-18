@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.colman.triplens.data.model.Post
 
-@Database(entities = [Post::class], version = 1, exportSchema = false)
+@Database(entities = [Post::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
 
@@ -21,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "triplens_db"
                 )
-                    .fallbackToDestructiveMigration() // Prevents the crash loop you see
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

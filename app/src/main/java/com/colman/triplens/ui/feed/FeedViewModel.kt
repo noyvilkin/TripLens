@@ -51,8 +51,4 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Keep this for the FAB button to add new posts manually
-    fun addNewPost() {
-        // TODO
-    }
 }

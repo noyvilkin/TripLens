@@ -64,7 +64,9 @@
         tools:layout="@layout/fragment_add_post">
         <action
             android:id="@+id/action_addPostFragment_to_feedFragment"
-            app:destination="@id/feedFragment" />
+            app:destination="@id/feedFragment"
+            app:popUpTo="@id/feedFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
