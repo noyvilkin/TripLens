@@ -38,7 +38,11 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = FeedAdapter()
+        adapter = FeedAdapter { post ->
+            // Navigate to PostDetailFragment via SafeArgs
+            val action = FeedFragmentDirections.actionFeedFragmentToPostDetailFragment(post.id)
+            findNavController().navigate(action)
+        }
         binding.recyclerViewFeed.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewFeed.adapter = adapter
     }

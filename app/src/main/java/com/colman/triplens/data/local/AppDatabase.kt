@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.colman.triplens.data.model.Post
 
-@Database(entities = [Post::class], version = 2, exportSchema = false)
+@Database(entities = [Post::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
 

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -67,11 +68,42 @@ class AddPostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupCountryAutoComplete()
         setupClickListeners()
         setupObservers()
     }
 
+    /**
+     * Set up the destination field with a country autocomplete adapter.
+     * Country names are fetched dynamically from the RestCountries API
+     * and observed via LiveData, so the adapter updates automatically.
+     */
+    private fun setupCountryAutoComplete() {
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            mutableListOf<String>()
+        )
+        binding.actvDestination.setAdapter(adapter)
+
+        // Observe the dynamic country list from the ViewModel
+        viewModel.countryNames.observe(viewLifecycleOwner) { countries ->
+            adapter.clear()
+            adapter.addAll(countries)
+            adapter.notifyDataSetChanged()
+        }
+
+        // Clear error when user picks a valid country from the dropdown
+        binding.actvDestination.setOnItemClickListener { _, _, _, _ ->
+            binding.tilDestination.error = null
+        }
+    }
+
     private fun setupClickListeners() {
+        binding.btnCancel.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         binding.btnCamera.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED
@@ -85,20 +117,21 @@ class AddPostFragment : Fragment() {
             )
         }
 
-        // Fetch weather/country when destination field loses focus
-        binding.etDestination.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                val dest = binding.etDestination.text.toString().trim()
-                if (dest.isNotEmpty()) viewModel.fetchDestinationData(dest)
-            }
-        }
-
         binding.btnSubmit.setOnClickListener {
-            // Trigger destination fetch if not already done
-            val dest = binding.etDestination.text.toString().trim()
+            val dest = binding.actvDestination.text.toString().trim()
+
+            // Validate the destination is a recognized country name
+            val validCountries = viewModel.countryNames.value.orEmpty()
+            if (dest.isNotEmpty() && validCountries.none { it.equals(dest, ignoreCase = true) }) {
+                binding.tilDestination.error = "Please select a valid country from the list"
+                return@setOnClickListener
+            }
+            binding.tilDestination.error = null
+
             viewModel.submitPost(
                 title = binding.etTitle.text.toString().trim(),
                 description = binding.etDescription.text.toString().trim(),
+                longDescription = binding.etLongDescription.text.toString().trim(),
                 destination = dest
             )
         }
@@ -106,28 +139,6 @@ class AddPostFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.selectedImages.observe(viewLifecycleOwner) { uris -> refreshImagePreviews(uris) }
-
-        viewModel.weatherText.observe(viewLifecycleOwner) { text ->
-            text?.let {
-                binding.cardWeather.visibility = View.VISIBLE
-                binding.tvWeatherInfo.text = it
-            }
-        }
-
-        viewModel.weatherIconUrl.observe(viewLifecycleOwner) { url ->
-            url?.let { Picasso.get().load(it).into(binding.ivWeatherIcon) }
-        }
-
-        viewModel.countryText.observe(viewLifecycleOwner) { text ->
-            text?.let {
-                binding.cardCountry.visibility = View.VISIBLE
-                binding.tvCountryInfo.text = it
-            }
-        }
-
-        viewModel.countryFlagUrl.observe(viewLifecycleOwner) { url ->
-            url?.let { Picasso.get().load(it).into(binding.ivCountryFlag) }
-        }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE

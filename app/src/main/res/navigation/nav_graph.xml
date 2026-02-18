@@ -55,6 +55,9 @@
         <action
             android:id="@+id/action_feedFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
     </fragment>
 
     <fragment
@@ -74,5 +77,16 @@
         android:name="com.colman.triplens.ui.profile.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <!-- Post Detail (reached via SafeArgs with postId) -->
+    <fragment
+        android:id="@+id/postDetailFragment"
+        android:name="com.colman.triplens.ui.post.PostDetailFragment"
+        android:label="Post Details"
+        tools:layout="@layout/fragment_post_detail">
+        <argument
+            android:name="postId"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

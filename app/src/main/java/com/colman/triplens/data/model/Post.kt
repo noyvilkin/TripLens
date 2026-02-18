@@ -12,7 +12,8 @@ data class Post(
     val travelImage: String = "",
     val imageUrls: String = "",        // comma-separated URLs for multi-image
     val title: String = "",
-    val description: String = "",
+    val description: String = "",      // Short caption shown in feed preview
+    val longDescription: String = "",  // Detailed description shown in PostDetail
     val destination: String = "",
 
     // Country Data (RestCountries API)
@@ -20,6 +21,7 @@ data class Post(
     val countryCapital: String = "",
     val countryPopulation: String = "",
     val countryCurrency: String = "",
+    val countryLanguages: String = "",
 
     // Weather Data (OpenWeather API)
     val temperature: String = "",

@@ -2,97 +2,181 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardPost"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="vertical">
 
-        <RelativeLayout
+        <!-- User Header -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivUserProfile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:scaleType="centerCrop"
                 app:shapeAppearanceOverlay="@style/CircleImage"
                 android:src="@android:color/darker_gray" />
 
-            <TextView
-                android:id="@+id/tvUserName"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/ivUserProfile"
-                android:layout_marginStart="12dp"
-                android:text="User Name"
-                android:textStyle="bold"
-                android:textSize="16sp" />
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
 
-            <TextView
-                android:id="@+id/tvDestination"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tvUserName"
-                android:layout_toEndOf="@id/ivUserProfile"
-                android:layout_marginStart="12dp"
-                android:text="Location"
-                android:textSize="12sp" />
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/tvUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    tools:text="John Doe" />
 
+                <TextView
+                    android:id="@+id/tvDestination"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="?android:textColorSecondary"
+                    tools:text="France" />
+            </LinearLayout>
+
+            <!-- Country Flag (small, in header) -->
+            <ImageView
+                android:id="@+id/ivCountryFlag"
+                android:layout_width="32dp"
+                android:layout_height="22dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Country flag"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <!-- Travel Image Thumbnail (first photo only) -->
         <ImageView
-            android:id="@+id/ivPostImage"
+            android:id="@+id/ivTravelImage"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="220dp"
             android:scaleType="centerCrop"
-            android:background="@android:color/darker_gray" />
+            android:background="@android:color/darker_gray"
+            android:contentDescription="Travel image" />
 
-        <TextView
-            android:id="@+id/tvPostTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:text="Post Title" />
-
-        <TextView
-            android:id="@+id/tvPostDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Post description goes here..." />
-
+        <!-- Content Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#F5F5F5"
-            android:padding="8dp"
-            android:layout_marginTop="12dp">
+            android:padding="12dp">
 
+            <!-- Title -->
             <TextView
-                android:id="@+id/tvCountryInfo"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPostTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Capital: Loading | Pop: Loading"
-                android:textSize="12sp" />
+                android:textStyle="bold"
+                android:textSize="16sp"
+                tools:text="My Amazing Trip" />
 
+            <!-- Short Caption -->
             <TextView
-                android:id="@+id/tvWeatherInfo"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPostDescription"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Weather: --°C"
-                android:textSize="12sp"
-                android:textStyle="italic" />
+                android:layout_marginTop="4dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:textSize="13sp"
+                android:textColor="?android:textColorSecondary"
+                tools:text="A quick preview of the trip..." />
+
+            <!-- Info Cards Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:baselineAligned="false">
+
+                <!-- Weather Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F0F7FF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:id="@+id/ivWeatherIcon"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="Weather icon" />
+
+                        <TextView
+                            android:id="@+id/tvWeatherInfo"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:textSize="11sp"
+                            android:maxLines="2"
+                            tools:text="22.5°C\nClear" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Country Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F0FFF0">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:id="@+id/tvCountryInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="11sp"
+                            android:maxLines="3"
+                            tools:text="Capital: Paris\nPop: 67.4M" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
