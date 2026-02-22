@@ -56,11 +56,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun register(email: String, password: String) {
+    fun register(email: String, password: String, displayName: String) {
         _isLoading.value = true
         _authError.value = null
 
-        repository.register(email, password) { success, errorMessage ->
+        repository.register(email, password, displayName) { success, errorMessage ->
             _isLoading.postValue(false)
             if (success) {
                 // After registration, keep the user logged in by default

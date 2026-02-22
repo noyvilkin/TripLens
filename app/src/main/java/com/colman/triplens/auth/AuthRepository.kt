@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 
 /**
  * Data-layer repository responsible for Firebase Authentication
@@ -48,11 +49,18 @@ class AuthRepository(context: Context) {
 
     // ── Auth operations ──────────────────────────────────────────
 
-    fun register(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    fun register(email: String, password: String, displayName: String, onResult: (Boolean, String?) -> Unit) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    onResult(true, null)
+                    // Set display name on the newly created user
+                    val user = firebaseAuth.currentUser
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(displayName)
+                        .build()
+                    user?.updateProfile(profileUpdates)
+                        ?.addOnCompleteListener { onResult(true, null) }
+                        ?: onResult(true, null)
                 } else {
                     onResult(false, task.exception?.message)
                 }
