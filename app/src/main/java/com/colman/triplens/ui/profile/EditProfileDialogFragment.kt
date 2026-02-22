@@ -87,6 +87,7 @@ class EditProfileDialogFragment : DialogFragment() {
         populateCurrentData()
         setupClickListeners()
         setupObservers()
+        setupTextWatchers()
     }
 
     override fun onStart() {
@@ -124,9 +125,12 @@ class EditProfileDialogFragment : DialogFragment() {
         }
 
         binding.btnDialogSave.setOnClickListener {
+            // Clear previous error
+            binding.tilDialogDisplayName.error = null
+
             val displayName = binding.etDialogDisplayName.text.toString().trim()
             if (displayName.isBlank()) {
-                Toast.makeText(context, "Display name cannot be empty", Toast.LENGTH_SHORT).show()
+                binding.tilDialogDisplayName.error = "Display name cannot be empty"
                 return@setOnClickListener
             }
             profileViewModel.updateProfile(displayName, selectedImageUri)
@@ -149,12 +153,25 @@ class EditProfileDialogFragment : DialogFragment() {
             }
         }
 
-        profileViewModel.error.observe(viewLifecycleOwner) { error ->
+        profileViewModel.profileUpdateError.observe(viewLifecycleOwner) { error ->
             error?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                profileViewModel.clearError()
+                binding.tilDialogDisplayName.error = it
+                profileViewModel.clearProfileUpdateError()
             }
         }
+    }
+
+    /**
+     * Clear the inline error when the user starts editing.
+     */
+    private fun setupTextWatchers() {
+        binding.etDialogDisplayName.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.tilDialogDisplayName.error = null
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
     }
 
     private fun showImageSourceChooser() {

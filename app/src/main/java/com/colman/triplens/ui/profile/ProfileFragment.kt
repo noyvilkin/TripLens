@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -13,6 +12,7 @@ import com.colman.triplens.R
 import com.colman.triplens.base.MainActivity
 import com.colman.triplens.databinding.FragmentProfileBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 
 class ProfileFragment : Fragment() {
@@ -102,15 +102,15 @@ class ProfileFragment : Fragment() {
         // Post deleted
         viewModel.postDeleted.observe(viewLifecycleOwner) { deleted ->
             if (deleted) {
-                Toast.makeText(context, R.string.post_deleted, Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.post_deleted, Snackbar.LENGTH_SHORT).show()
                 viewModel.clearPostDeleted()
             }
         }
 
-        // Error
+        // Error (e.g. post deletion failure)
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 viewModel.clearError()
             }
         }

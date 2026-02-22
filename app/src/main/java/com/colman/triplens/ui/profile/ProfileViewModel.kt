@@ -47,7 +47,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val profileUpdateSuccess: LiveData<Boolean> = _profileUpdateSuccess
 
     private val _error = MutableLiveData<String?>()
+    /** General errors (e.g. post deletion) — observed by ProfileFragment. */
     val error: LiveData<String?> = _error
+
+    private val _profileUpdateError = MutableLiveData<String?>()
+    /** Profile-update errors — observed only by EditProfileDialogFragment. */
+    val profileUpdateError: LiveData<String?> = _profileUpdateError
 
     private val _postDeleted = MutableLiveData(false)
     val postDeleted: LiveData<Boolean> = _postDeleted
@@ -80,12 +85,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
      */
     fun updateProfile(displayName: String, newImageUri: Uri?) {
         val user = FirebaseAuth.getInstance().currentUser ?: run {
-            _error.value = "No user signed in"
+            _profileUpdateError.value = "No user signed in"
             return
         }
 
         if (displayName.isBlank()) {
-            _error.value = "Display name cannot be empty"
+            _profileUpdateError.value = "Display name cannot be empty"
             return
         }
 
@@ -103,7 +108,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     val taken = snapshot.documents.any { it.id != user.uid }
                     if (taken) {
                         _isUpdatingProfile.postValue(false)
-                        _error.postValue("Display name \"$displayName\" is already taken")
+                        _profileUpdateError.postValue("Display name \"$displayName\" is already taken")
                         return@launch
                     }
                 }
@@ -144,7 +149,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             } catch (e: Exception) {
                 Log.w(TAG, "Profile update failed: ${e.message}")
                 _isUpdatingProfile.postValue(false)
-                _error.postValue(e.message ?: "Failed to update profile")
+                _profileUpdateError.postValue(e.message ?: "Failed to update profile")
             }
         }
     }
@@ -169,6 +174,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun clearError() {
         _error.value = null
+    }
+
+    fun clearProfileUpdateError() {
+        _profileUpdateError.value = null
     }
 
     fun clearProfileUpdateSuccess() {
