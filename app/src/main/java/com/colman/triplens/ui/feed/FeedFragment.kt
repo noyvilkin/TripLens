@@ -6,13 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.colman.triplens.databinding.FragmentFeedBinding
 
-/**
- * Fragment responsible for displaying the social feed of travel posts.
- * It observes the Room database via the FeedViewModel.
- */
 class FeedFragment : Fragment() {
 
     private var _binding: FragmentFeedBinding? = null
@@ -22,9 +19,7 @@ class FeedFragment : Fragment() {
     private lateinit var adapter: FeedAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFeedBinding.inflate(inflater, container, false)
         return binding.root
@@ -32,41 +27,33 @@ class FeedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Initialize ViewModel
         viewModel = ViewModelProvider(this)[FeedViewModel::class.java]
-
         setupRecyclerView()
         setupObservers()
-        setupClickListeners()
+
+        binding.fabAddPost.setOnClickListener {
+            val action = FeedFragmentDirections.actionFeedFragmentToAddPostFragment()
+            findNavController().navigate(action)
+        }
     }
 
     private fun setupRecyclerView() {
-        adapter = FeedAdapter()
-        // Setting the LayoutManager is critical to prevent a white screen
+        adapter = FeedAdapter { post ->
+            // Navigate to PostDetailFragment via SafeArgs
+            val action = FeedFragmentDirections.actionFeedFragmentToPostDetailFragment(post.id)
+            findNavController().navigate(action)
+        }
         binding.recyclerViewFeed.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewFeed.adapter = adapter
     }
 
     private fun setupObservers() {
-        // Observe the list of posts from the Room database
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
-            if (posts != null) {
-                // Submit the list to the ListAdapter for efficient UI updates
-                adapter.submitList(posts)
-            }
+            if (posts != null) adapter.submitList(posts)
         }
 
-        // Observe loading state to show/hide the ProgressBar
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
-    }
-
-    private fun setupClickListeners() {
-        // Trigger the addition of a new post when the FAB is clicked
-        binding.fabAddPost.setOnClickListener {
-            viewModel.addNewPost()
         }
     }
 
