@@ -60,15 +60,24 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         _isLoading.value = true
         _authError.value = null
 
-        repository.register(email, password, displayName) { success, errorMessage ->
-            _isLoading.postValue(false)
-            if (success) {
-                // After registration, keep the user logged in by default
-                repository.setStayLoggedIn(true)
-                _currentUser.postValue(repository.getCurrentUser())
-                _authSuccess.postValue(true)
-            } else {
-                _authError.postValue(errorMessage ?: "Registration failed")
+        // First check if the display name is already taken
+        repository.isDisplayNameTaken(displayName) { taken ->
+            if (taken) {
+                _isLoading.postValue(false)
+                _authError.postValue("Display name \"$displayName\" is already taken")
+                return@isDisplayNameTaken
+            }
+
+            // Name is available — proceed with registration
+            repository.register(email, password, displayName) { success, errorMessage ->
+                _isLoading.postValue(false)
+                if (success) {
+                    repository.setStayLoggedIn(true)
+                    _currentUser.postValue(repository.getCurrentUser())
+                    _authSuccess.postValue(true)
+                } else {
+                    _authError.postValue(errorMessage ?: "Registration failed")
+                }
             }
         }
     }

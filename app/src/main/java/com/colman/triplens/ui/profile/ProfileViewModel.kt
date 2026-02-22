@@ -14,6 +14,7 @@ import com.colman.triplens.data.repo.PostRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -91,6 +92,22 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         _isUpdatingProfile.value = true
         viewModelScope.launch {
             try {
+                // Check if the new display name is taken (skip if unchanged)
+                val nameChanged = displayName != user.displayName
+                if (nameChanged) {
+                    val snapshot = FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .whereEqualTo("displayName", displayName)
+                        .get()
+                        .await()
+                    val taken = snapshot.documents.any { it.id != user.uid }
+                    if (taken) {
+                        _isUpdatingProfile.postValue(false)
+                        _error.postValue("Display name \"$displayName\" is already taken")
+                        return@launch
+                    }
+                }
+
                 // Upload new profile image if provided
                 val imageUrl = if (newImageUri != null) {
                     repository.uploadImage(newImageUri)
@@ -105,6 +122,15 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     .build()
 
                 user.updateProfile(profileUpdates).await()
+
+                // Update Firestore users collection
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.uid)
+                    .set(mapOf(
+                        "displayName" to displayName,
+                        "email" to (user.email ?: "")
+                    ))
 
                 // Update all posts by this user in Room and Firestore
                 repository.updateUserInfoInPosts(user.uid, displayName, imageUrl)
