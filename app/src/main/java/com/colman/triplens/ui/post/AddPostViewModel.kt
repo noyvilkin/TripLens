@@ -35,7 +35,41 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    // Selected images (local URIs)
+    // ── Edit mode ────────────────────────────────────────────────
+    private var editingPostId: String? = null
+
+    private val _editingPost = MutableLiveData<Post?>(null)
+    val editingPost: LiveData<Post?> = _editingPost
+
+    /** Existing cloud image URLs (for edit mode — can be removed by user) */
+    private val _existingImageUrls = MutableLiveData<List<String>>(emptyList())
+    val existingImageUrls: LiveData<List<String>> = _existingImageUrls
+
+    val isEditMode: Boolean get() = editingPostId != null
+
+    /**
+     * Load a post for editing. Call from Fragment when postId arg is non-empty.
+     */
+    fun loadPostForEditing(postId: String) {
+        viewModelScope.launch {
+            val post = repository.getPostByIdSync(postId) ?: return@launch
+            editingPostId = post.id
+            _editingPost.value = post
+            _existingImageUrls.value = post.imageUrls
+                .split(",")
+                .filter { it.isNotBlank() }
+        }
+    }
+
+    fun removeExistingImage(index: Int) {
+        val current = _existingImageUrls.value.orEmpty().toMutableList()
+        if (index in current.indices) {
+            current.removeAt(index)
+            _existingImageUrls.value = current
+        }
+    }
+
+    // ── Selected images (local URIs — new picks) ─────────────────
     private val _selectedImages = MutableLiveData<List<Uri>>(emptyList())
     val selectedImages: LiveData<List<Uri>> = _selectedImages
 
@@ -50,9 +84,10 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
     val error: LiveData<String?> = _error
 
     fun addImage(uri: Uri) {
-        val current = _selectedImages.value.orEmpty()
-        if (current.size < MAX_IMAGES) {
-            _selectedImages.value = current + uri
+        val existingCount = _existingImageUrls.value.orEmpty().size
+        val newCount = _selectedImages.value.orEmpty().size
+        if (existingCount + newCount < MAX_IMAGES) {
+            _selectedImages.value = _selectedImages.value.orEmpty() + uri
         }
     }
 
@@ -74,7 +109,11 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
             _error.value = "Title and description are required"
             return
         }
-        if (_selectedImages.value.isNullOrEmpty()) {
+
+        val existingUrls = _existingImageUrls.value.orEmpty()
+        val newImages = _selectedImages.value.orEmpty()
+
+        if (existingUrls.isEmpty() && newImages.isEmpty()) {
             _error.value = "Please add at least one image"
             return
         }
@@ -82,32 +121,43 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val imageUris = _selectedImages.value.orEmpty()
-                val downloadUrls = repository.uploadImages(imageUris)
+                // Upload only new images
+                val newDownloadUrls = if (newImages.isNotEmpty()) {
+                    repository.uploadImages(newImages)
+                } else {
+                    emptyList()
+                }
+
+                // Combine existing (kept) URLs with newly uploaded URLs
+                val allUrls = existingUrls + newDownloadUrls
 
                 val user = FirebaseAuth.getInstance().currentUser
+                val id = editingPostId ?: UUID.randomUUID().toString()
+
                 val post = Post(
-                    id = UUID.randomUUID().toString(),
+                    id = id,
                     userId = user?.uid ?: "",
                     userName = user?.displayName ?: user?.email ?: "Anonymous",
                     userProfileImage = user?.photoUrl?.toString() ?: "",
-                    travelImage = downloadUrls.firstOrNull() ?: "",
-                    imageUrls = downloadUrls.joinToString(","),
+                    travelImage = allUrls.firstOrNull() ?: "",
+                    imageUrls = allUrls.joinToString(","),
                     title = title,
                     description = description,
                     longDescription = longDescription,
                     destination = destination,
-                    timestamp = System.currentTimeMillis()
+                    timestamp = if (isEditMode) {
+                        _editingPost.value?.timestamp ?: System.currentTimeMillis()
+                    } else {
+                        System.currentTimeMillis()
+                    }
                 )
 
-                // Save post without API data — enrichment happens
-                // automatically when the feed loads (via PostRepository.refreshPosts)
                 repository.savePost(post)
                 _isLoading.postValue(false)
                 _postCreated.postValue(true)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
-                _error.postValue(e.message ?: "Failed to create post")
+                _error.postValue(e.message ?: "Failed to save post")
             }
         }
     }

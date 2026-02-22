@@ -4,43 +4,141 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.colman.triplens.NavGraphDirections
-import com.colman.triplens.auth.AuthViewModel
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.colman.triplens.R
+import com.colman.triplens.base.MainActivity
 import com.colman.triplens.databinding.FragmentProfileBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.squareup.picasso.Picasso
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var authViewModel: AuthViewModel
+    private lateinit var viewModel: ProfileViewModel
+    private lateinit var adapter: ProfilePostAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
-        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
-
-        setupObservers()
-        setupClickListeners()
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+
+        setupRecyclerView()
+        setupObservers()
+        setupClickListeners()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh user data when returning (e.g. after editing profile)
+        viewModel.refreshUser()
+    }
+
+    private fun setupRecyclerView() {
+        adapter = ProfilePostAdapter(
+            onPostClick = { post ->
+                // Navigate to post detail
+                val action = ProfileFragmentDirections
+                    .actionProfileFragmentToPostDetailFragment(post.id)
+                findNavController().navigate(action)
+            },
+            onEditClick = { post ->
+                // Navigate to AddPostFragment in edit mode
+                val action = ProfileFragmentDirections
+                    .actionProfileFragmentToAddPostFragment(post.id)
+                findNavController().navigate(action)
+            },
+            onDeleteClick = { post ->
+                showDeleteConfirmation(post.id)
+            }
+        )
+        binding.rvMyPosts.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvMyPosts.adapter = adapter
+    }
+
     private fun setupObservers() {
-        authViewModel.currentUser.observe(viewLifecycleOwner) { user ->
-            binding.userEmail.text = user?.email ?: ""
+        // User info
+        viewModel.currentUser.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                binding.tvDisplayName.text = user.displayName?.ifEmpty { "No Name" } ?: "No Name"
+                binding.tvEmail.text = user.email ?: ""
+
+                val photoUrl = user.photoUrl?.toString()
+                if (!photoUrl.isNullOrEmpty()) {
+                    Picasso.get()
+                        .load(photoUrl)
+                        .placeholder(android.R.drawable.ic_menu_myplaces)
+                        .fit().centerCrop()
+                        .into(binding.ivProfileImage)
+                } else {
+                    binding.ivProfileImage.setImageResource(android.R.drawable.ic_menu_myplaces)
+                }
+            }
+        }
+
+        // User posts
+        viewModel.userPosts.observe(viewLifecycleOwner) { posts ->
+            adapter.submitList(posts)
+            binding.tvEmptyPosts.visibility =
+                if (posts.isNullOrEmpty()) View.VISIBLE else View.GONE
+        }
+
+        // Loading state
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+        }
+
+        // Post deleted
+        viewModel.postDeleted.observe(viewLifecycleOwner) { deleted ->
+            if (deleted) {
+                Toast.makeText(context, R.string.post_deleted, Toast.LENGTH_SHORT).show()
+                viewModel.clearPostDeleted()
+            }
+        }
+
+        // Error
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
+            }
+        }
+
+        // Profile update success — refresh toolbar profile image
+        viewModel.profileUpdateSuccess.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                (activity as? MainActivity)?.loadProfileImage()
+            }
         }
     }
 
     private fun setupClickListeners() {
-        binding.logoutButton.setOnClickListener {
-            authViewModel.logout()
-            val action = NavGraphDirections.actionGlobalLoginFragment()
-            findNavController().navigate(action)
+        binding.btnEditProfile.setOnClickListener {
+            val dialog = EditProfileDialogFragment()
+            dialog.show(childFragmentManager, "EditProfileDialog")
         }
+    }
+
+    private fun showDeleteConfirmation(postId: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.delete_post_title)
+            .setMessage(R.string.delete_post_message)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deletePost(postId)
+            }
+            .show()
     }
 
     override fun onDestroyView() {

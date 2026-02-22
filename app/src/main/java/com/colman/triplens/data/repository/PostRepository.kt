@@ -50,6 +50,9 @@ class PostRepository(private val postDao: PostDao) {
     suspend fun getPostByIdSync(postId: String): Post? =
         withContext(Dispatchers.IO) { postDao.getPostByIdSync(postId) }
 
+    fun getPostsByUserId(userId: String): LiveData<List<Post>> =
+        postDao.getPostsByUserId(userId)
+
     // ── External API Calls (with error handling) ─────────────────
 
     /**
@@ -167,12 +170,58 @@ class PostRepository(private val postDao: PostDao) {
         }
     }
 
+    suspend fun uploadImage(uri: Uri): String {
+        val name = UUID.randomUUID().toString()
+        return cloudinaryModel.uploadImage(uri, name)
+    }
+
     // ── Post CRUD ────────────────────────────────────────────────
 
     suspend fun savePost(post: Post) {
         withContext(Dispatchers.IO) {
             saveToFirestore(post)
             postDao.insertPost(post)
+        }
+    }
+
+    suspend fun deletePost(postId: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                // Delete from Firestore
+                firestore.collection("posts")
+                    .document(postId)
+                    .delete()
+                    .await()
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to delete post from Firestore: ${e.message}")
+            }
+            // Delete from local Room cache
+            postDao.deletePostById(postId)
+        }
+    }
+
+    suspend fun updateUserInfoInPosts(userId: String, userName: String, profileImage: String) {
+        withContext(Dispatchers.IO) {
+            // Update local Room cache
+            postDao.updateUserInfoInPosts(userId, userName, profileImage)
+
+            // Update Firestore documents
+            try {
+                val snapshot = firestore.collection("posts")
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .await()
+                for (doc in snapshot.documents) {
+                    doc.reference.update(
+                        mapOf(
+                            "userName" to userName,
+                            "userProfileImage" to profileImage
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to update user info in Firestore posts: ${e.message}")
+            }
         }
     }
 
