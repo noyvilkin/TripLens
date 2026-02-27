@@ -18,6 +18,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.colman.triplens.databinding.FragmentAddPostBinding
 import com.squareup.picasso.Picasso
 import java.io.File
@@ -28,6 +29,8 @@ class AddPostFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewModel: AddPostViewModel
     private var currentPhotoUri: Uri? = null
+
+    private val args: AddPostFragmentArgs by navArgs()
 
     // Camera permission
     private val cameraPermissionLauncher = registerForActivityResult(
@@ -48,7 +51,9 @@ class AddPostFragment : Fragment() {
     private val galleryLauncher = registerForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia(AddPostViewModel.MAX_IMAGES)
     ) { uris ->
-        val remaining = AddPostViewModel.MAX_IMAGES - (viewModel.selectedImages.value?.size ?: 0)
+        val existingCount = viewModel.existingImageUrls.value.orEmpty().size
+        val newCount = viewModel.selectedImages.value?.size ?: 0
+        val remaining = AddPostViewModel.MAX_IMAGES - existingCount - newCount
         uris.take(remaining).forEach { uri ->
             val localUri = copyToLocalFile(uri)
             viewModel.addImage(localUri ?: uri)
@@ -71,12 +76,16 @@ class AddPostFragment : Fragment() {
         setupCountryAutoComplete()
         setupClickListeners()
         setupObservers()
+
+        // Check if we're in edit mode
+        val postId = args.postId
+        if (postId.isNotEmpty()) {
+            viewModel.loadPostForEditing(postId)
+        }
     }
 
     /**
      * Set up the destination field with a country autocomplete adapter.
-     * Country names are fetched dynamically from the RestCountries API
-     * and observed via LiveData, so the adapter updates automatically.
      */
     private fun setupCountryAutoComplete() {
         val adapter = ArrayAdapter(
@@ -86,14 +95,12 @@ class AddPostFragment : Fragment() {
         )
         binding.actvDestination.setAdapter(adapter)
 
-        // Observe the dynamic country list from the ViewModel
         viewModel.countryNames.observe(viewLifecycleOwner) { countries ->
             adapter.clear()
             adapter.addAll(countries)
             adapter.notifyDataSetChanged()
         }
 
-        // Clear error when user picks a valid country from the dropdown
         binding.actvDestination.setOnItemClickListener { _, _, _, _ ->
             binding.tilDestination.error = null
         }
@@ -120,7 +127,6 @@ class AddPostFragment : Fragment() {
         binding.btnSubmit.setOnClickListener {
             val dest = binding.actvDestination.text.toString().trim()
 
-            // Validate the destination is a recognized country name
             val validCountries = viewModel.countryNames.value.orEmpty()
             if (dest.isNotEmpty() && validCountries.none { it.equals(dest, ignoreCase = true) }) {
                 binding.tilDestination.error = "Please select a valid country from the list"
@@ -138,7 +144,26 @@ class AddPostFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.selectedImages.observe(viewLifecycleOwner) { uris -> refreshImagePreviews(uris) }
+        // New image picks
+        viewModel.selectedImages.observe(viewLifecycleOwner) { _ ->
+            refreshAllImagePreviews()
+        }
+
+        // Existing image URLs (edit mode)
+        viewModel.existingImageUrls.observe(viewLifecycleOwner) { _ ->
+            refreshAllImagePreviews()
+        }
+
+        // Edit mode: pre-fill form when post data is loaded
+        viewModel.editingPost.observe(viewLifecycleOwner) { post ->
+            if (post != null) {
+                binding.etTitle.setText(post.title)
+                binding.etDescription.setText(post.description)
+                binding.etLongDescription.setText(post.longDescription)
+                binding.actvDestination.setText(post.destination, false)
+                binding.btnSubmit.text = getString(com.colman.triplens.R.string.update)
+            }
+        }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
@@ -157,12 +182,30 @@ class AddPostFragment : Fragment() {
         }
     }
 
-    private fun refreshImagePreviews(uris: List<Uri>) {
+    /**
+     * Render both existing cloud images and newly picked local images
+     * in the preview container.
+     */
+    private fun refreshAllImagePreviews() {
         binding.imageContainer.removeAllViews()
         val size = (120 * resources.displayMetrics.density).toInt()
         val margin = (6 * resources.displayMetrics.density).toInt()
 
-        uris.forEachIndexed { index, uri ->
+        // Existing cloud images (edit mode)
+        val existingUrls = viewModel.existingImageUrls.value.orEmpty()
+        existingUrls.forEachIndexed { index, url ->
+            val iv = ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(size, size).apply { marginEnd = margin }
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setOnClickListener { viewModel.removeExistingImage(index) }
+            }
+            Picasso.get().load(url).resize(size, size).centerCrop().into(iv)
+            binding.imageContainer.addView(iv)
+        }
+
+        // Newly picked local images
+        val newUris = viewModel.selectedImages.value.orEmpty()
+        newUris.forEachIndexed { index, uri ->
             val iv = ImageView(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(size, size).apply { marginEnd = margin }
                 scaleType = ImageView.ScaleType.CENTER_CROP

@@ -12,6 +12,11 @@
         app:popUpTo="@id/nav_graph"
         app:popUpToInclusive="true" />
 
+    <!-- Global: navigate to profile from anywhere -->
+    <action
+        android:id="@+id/action_global_profileFragment"
+        app:destination="@id/profileFragment" />
+
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.colman.triplens.ui.auth.LoginFragment"
@@ -47,7 +52,7 @@
     <fragment
         android:id="@+id/feedFragment"
         android:name="com.colman.triplens.ui.feed.FeedFragment"
-        android:label="fragment_feed"
+        android:label="TripLens"
         tools:layout="@layout/fragment_feed">
         <action
             android:id="@+id/action_feedFragment_to_addPostFragment"
@@ -65,6 +70,10 @@
         android:name="com.colman.triplens.ui.post.AddPostFragment"
         android:label="fragment_add_post"
         tools:layout="@layout/fragment_add_post">
+        <argument
+            android:name="postId"
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_addPostFragment_to_feedFragment"
             app:destination="@id/feedFragment"
@@ -75,8 +84,15 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.colman.triplens.ui.profile.ProfileFragment"
-        android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        android:label="My Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_addPostFragment"
+            app:destination="@id/addPostFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
+    </fragment>
 
     <!-- Post Detail (reached via SafeArgs with postId) -->
     <fragment
