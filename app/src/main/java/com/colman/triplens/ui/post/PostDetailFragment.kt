@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -14,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.colman.triplens.data.model.Post
 import com.colman.triplens.databinding.FragmentPostDetailBinding
 import com.colman.triplens.ui.common.ImagePagerAdapter
+import com.colman.triplens.util.BrandedSnackbar
 import com.squareup.picasso.Picasso
 
 class PostDetailFragment : Fragment() {
@@ -86,7 +86,7 @@ class PostDetailFragment : Fragment() {
 
         viewModel.commentError.observe(viewLifecycleOwner) { error ->
             error?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                BrandedSnackbar.showError(binding.root, it)
                 viewModel.clearCommentError()
             }
         }

@@ -68,7 +68,7 @@
     <fragment
         android:id="@+id/addPostFragment"
         android:name="com.colman.triplens.ui.post.AddPostFragment"
-        android:label="fragment_add_post"
+        android:label="@string/create_new_post"
         tools:layout="@layout/fragment_add_post">
         <argument
             android:name="postId"

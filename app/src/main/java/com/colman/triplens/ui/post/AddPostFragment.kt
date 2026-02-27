@@ -10,16 +10,18 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.colman.triplens.R
 import com.colman.triplens.databinding.FragmentAddPostBinding
+import com.colman.triplens.util.BrandedSnackbar
 import com.squareup.picasso.Picasso
 import java.io.File
 
@@ -37,7 +39,7 @@ class AddPostFragment : Fragment() {
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) launchCamera()
-        else Toast.makeText(context, "Camera permission is required", Toast.LENGTH_SHORT).show()
+        else BrandedSnackbar.showError(binding.root, getString(R.string.camera_permission_required))
     }
 
     // Camera capture
@@ -59,7 +61,10 @@ class AddPostFragment : Fragment() {
             viewModel.addImage(localUri ?: uri)
         }
         if (uris.size > remaining) {
-            Toast.makeText(context, "Max ${AddPostViewModel.MAX_IMAGES} images", Toast.LENGTH_SHORT).show()
+            BrandedSnackbar.showError(
+                binding.root,
+                getString(R.string.max_images_warning, AddPostViewModel.MAX_IMAGES)
+            )
         }
     }
 
@@ -73,6 +78,11 @@ class AddPostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ── Set toolbar title ────────────────────────────────────
+        (activity as? AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.create_new_post)
+
         setupCountryAutoComplete()
         setupClickListeners()
         setupObservers()
@@ -81,6 +91,9 @@ class AddPostFragment : Fragment() {
         val postId = args.postId
         if (postId.isNotEmpty()) {
             viewModel.loadPostForEditing(postId)
+            // Override title for edit mode
+            (activity as? AppCompatActivity)?.supportActionBar?.title =
+                getString(R.string.edit_post)
         }
     }
 
@@ -161,24 +174,38 @@ class AddPostFragment : Fragment() {
                 binding.etDescription.setText(post.description)
                 binding.etLongDescription.setText(post.longDescription)
                 binding.actvDestination.setText(post.destination, false)
-                binding.btnSubmit.text = getString(com.colman.triplens.R.string.update)
+                binding.btnSubmit.text = getString(R.string.update)
             }
         }
 
+        // Loading state — show progress bar and disable button
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
             binding.btnSubmit.isEnabled = !loading
         }
 
+        // Error — branded Snackbar (SingleLiveEvent prevents duplicates on rotation)
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                BrandedSnackbar.showError(binding.root, it)
                 viewModel.clearError()
             }
         }
 
+        // Post saved — show success Snackbar on the activity view so it
+        // persists through the back-navigation, then navigate up.
         viewModel.postCreated.observe(viewLifecycleOwner) { created ->
-            if (created) findNavController().navigateUp()
+            if (created) {
+                val message = if (args.postId.isNotEmpty()) {
+                    getString(R.string.post_updated)
+                } else {
+                    getString(R.string.post_created)
+                }
+                activity?.findViewById<View>(android.R.id.content)?.let { root ->
+                    BrandedSnackbar.showSuccess(root, message)
+                }
+                findNavController().navigateUp()
+            }
         }
     }
 
