@@ -9,14 +9,17 @@ import androidx.lifecycle.viewModelScope
 import com.colman.triplens.data.local.AppDatabase
 import com.colman.triplens.data.model.Post
 import com.colman.triplens.data.repo.PostRepository
+import com.colman.triplens.util.SingleLiveEvent
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.UUID
 
 class AddPostViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         const val MAX_IMAGES = 5
+        private const val ENRICHMENT_TIMEOUT_MS = 15_000L
     }
 
     private val repository: PostRepository
@@ -73,14 +76,17 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
     private val _selectedImages = MutableLiveData<List<Uri>>(emptyList())
     val selectedImages: LiveData<List<Uri>> = _selectedImages
 
-    // UI state
+    // ── UI state ─────────────────────────────────────────────────
+
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _postCreated = MutableLiveData(false)
+    /** One-shot event: post was saved. Prevents duplicate navigation on rotation. */
+    private val _postCreated = SingleLiveEvent<Boolean>()
     val postCreated: LiveData<Boolean> = _postCreated
 
-    private val _error = MutableLiveData<String?>()
+    /** One-shot event: error message. Prevents duplicate Snackbars on rotation. */
+    private val _error = SingleLiveEvent<String?>()
     val error: LiveData<String?> = _error
 
     fun addImage(uri: Uri) {
@@ -121,14 +127,14 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                // Upload only new images
+                // 1. Upload only new images
                 val newDownloadUrls = if (newImages.isNotEmpty()) {
                     repository.uploadImages(newImages)
                 } else {
                     emptyList()
                 }
 
-                // Combine existing (kept) URLs with newly uploaded URLs
+                // 2. Combine existing (kept) URLs with newly uploaded URLs
                 val allUrls = existingUrls + newDownloadUrls
 
                 val user = FirebaseAuth.getInstance().currentUser
@@ -152,7 +158,19 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
                     }
                 )
 
-                repository.savePost(post)
+                // 3. Enrich with Weather & Country data BEFORE persisting.
+                //    Uses a timeout so the save never hangs if APIs are slow / offline.
+                val enrichedPost = if (destination.isNotBlank()) {
+                    withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) {
+                        repository.enrichPostWithApiData(post)
+                    } ?: post   // fallback: save without enrichment data
+                } else {
+                    post
+                }
+
+                // 4. Persist to Firebase + Room with enriched data
+                repository.savePost(enrichedPost)
+
                 _isLoading.postValue(false)
                 _postCreated.postValue(true)
             } catch (e: Exception) {

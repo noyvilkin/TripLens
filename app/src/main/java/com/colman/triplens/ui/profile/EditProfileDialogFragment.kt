@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -15,6 +14,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.colman.triplens.R
 import com.colman.triplens.databinding.DialogEditProfileBinding
+import com.colman.triplens.util.BrandedSnackbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -34,7 +34,9 @@ class EditProfileDialogFragment : DialogFragment() {
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) launchCamera()
-        else Toast.makeText(context, "Camera permission is required", Toast.LENGTH_SHORT).show()
+        else activity?.findViewById<View>(android.R.id.content)?.let { root ->
+            BrandedSnackbar.showError(root, getString(R.string.camera_permission_required))
+        }
     }
 
     // Camera capture
@@ -147,7 +149,11 @@ class EditProfileDialogFragment : DialogFragment() {
 
         profileViewModel.profileUpdateSuccess.observe(viewLifecycleOwner) { success ->
             if (success) {
-                Toast.makeText(context, R.string.profile_updated, Toast.LENGTH_SHORT).show()
+                // Show branded Snackbar on the activity's root so it
+                // persists after the dialog is dismissed.
+                activity?.findViewById<View>(android.R.id.content)?.let { root ->
+                    BrandedSnackbar.showSuccess(root, getString(R.string.profile_updated))
+                }
                 profileViewModel.clearProfileUpdateSuccess()
                 dismiss()
             }

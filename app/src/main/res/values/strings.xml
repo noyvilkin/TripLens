@@ -12,4 +12,12 @@
     <string name="post_deleted">Post deleted successfully</string>
     <string name="update">Update</string>
     <string name="edit_post">Edit Post</string>
+
+    <!-- Branded Snackbar messages -->
+    <string name="post_created">Post Created Successfully</string>
+    <string name="post_updated">Post Updated Successfully</string>
+    <string name="logged_out_message">Logged Out</string>
+    <string name="camera_permission_required">Camera permission is required</string>
+    <string name="max_images_warning">Max %d images allowed</string>
+    <string name="create_new_post">Create New Post</string>
 </resources>

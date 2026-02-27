@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Branded Snackbar -->
+    <color name="snackbar_background">#CDBAE8</color>
+    <color name="snackbar_text_color">#1C1B1F</color>
 </resources>

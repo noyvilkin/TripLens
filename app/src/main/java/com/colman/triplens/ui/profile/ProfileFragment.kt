@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.colman.triplens.R
 import com.colman.triplens.base.MainActivity
 import com.colman.triplens.databinding.FragmentProfileBinding
+import com.colman.triplens.util.BrandedSnackbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 
 class ProfileFragment : Fragment() {
@@ -99,18 +99,18 @@ class ProfileFragment : Fragment() {
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
         }
 
-        // Post deleted
+        // Post deleted — branded Snackbar
         viewModel.postDeleted.observe(viewLifecycleOwner) { deleted ->
             if (deleted) {
-                Snackbar.make(binding.root, R.string.post_deleted, Snackbar.LENGTH_SHORT).show()
+                BrandedSnackbar.showSuccess(binding.root, getString(R.string.post_deleted))
                 viewModel.clearPostDeleted()
             }
         }
 
-        // Error (e.g. post deletion failure)
+        // Error (e.g. post deletion failure) — branded Snackbar
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                BrandedSnackbar.showError(binding.root, it)
                 viewModel.clearError()
             }
         }

@@ -14,6 +14,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.colman.triplens.R
 import com.colman.triplens.auth.AuthRepository
+import com.colman.triplens.util.BrandedSnackbar
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -107,6 +108,14 @@ class MainActivity : AppCompatActivity() {
     private fun performLogout() {
         val authRepo = AuthRepository(this)
         authRepo.logout()
+
+        // Show branded "Logged Out" Snackbar on the activity's root view
+        // so it remains visible on the login screen.
+        BrandedSnackbar.showSuccess(
+            findViewById(R.id.main),
+            getString(R.string.logged_out_message)
+        )
+
         navController.navigate(R.id.action_global_loginFragment)
     }
 
