@@ -27,7 +27,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _authError = MutableLiveData<String?>()
-    /** Non-null when the last auth operation failed; fragments show a Toast and reset. */
+    /** Non-null when the last auth operation failed; fragments show inline errors and reset. */
     val authError: LiveData<String?> = _authError
 
     private val _authSuccess = MutableLiveData(false)
@@ -56,19 +56,28 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun register(email: String, password: String) {
+    fun register(email: String, password: String, displayName: String) {
         _isLoading.value = true
         _authError.value = null
 
-        repository.register(email, password) { success, errorMessage ->
-            _isLoading.postValue(false)
-            if (success) {
-                // After registration, keep the user logged in by default
-                repository.setStayLoggedIn(true)
-                _currentUser.postValue(repository.getCurrentUser())
-                _authSuccess.postValue(true)
-            } else {
-                _authError.postValue(errorMessage ?: "Registration failed")
+        // First check if the display name is already taken
+        repository.isDisplayNameTaken(displayName) { taken ->
+            if (taken) {
+                _isLoading.postValue(false)
+                _authError.postValue("Display name \"$displayName\" is already taken")
+                return@isDisplayNameTaken
+            }
+
+            // Name is available — proceed with registration
+            repository.register(email, password, displayName) { success, errorMessage ->
+                _isLoading.postValue(false)
+                if (success) {
+                    repository.setStayLoggedIn(true)
+                    _currentUser.postValue(repository.getCurrentUser())
+                    _authSuccess.postValue(true)
+                } else {
+                    _authError.postValue(errorMessage ?: "Registration failed")
+                }
             }
         }
     }
@@ -79,7 +88,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         _authSuccess.value = false
     }
 
-    /** Call after the fragment has consumed the error (e.g. shown a Toast). */
+    /** Call after the fragment has consumed the error (e.g. shown inline). */
     fun clearError() {
         _authError.value = null
     }

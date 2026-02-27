@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * Data-layer repository responsible for Firebase Authentication
@@ -20,6 +22,7 @@ class AuthRepository(context: Context) {
     }
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -46,13 +49,64 @@ class AuthRepository(context: Context) {
         prefs.edit().putBoolean(KEY_STAY_LOGGED_IN, stay).apply()
     }
 
+    // ── Display name uniqueness ──────────────────────────────────
+
+    /**
+     * Check whether a display name is already taken in the Firestore `users` collection.
+     * @param excludeUserId If non-null, ignores the document belonging to this user
+     *                      (used when editing your own profile).
+     */
+    fun isDisplayNameTaken(
+        displayName: String,
+        excludeUserId: String? = null,
+        onResult: (Boolean) -> Unit
+    ) {
+        firestore.collection("users")
+            .whereEqualTo("displayName", displayName)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val taken = snapshot.documents.any { doc ->
+                    excludeUserId == null || doc.id != excludeUserId
+                }
+                onResult(taken)
+            }
+            .addOnFailureListener {
+                // On network error, don't block the user
+                onResult(false)
+            }
+    }
+
+    /**
+     * Save (or update) the user document in Firestore `users` collection.
+     */
+    fun saveUserToFirestore(uid: String, displayName: String, email: String) {
+        val userData = mapOf(
+            "displayName" to displayName,
+            "email" to email
+        )
+        firestore.collection("users").document(uid).set(userData)
+    }
+
     // ── Auth operations ──────────────────────────────────────────
 
-    fun register(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    fun register(email: String, password: String, displayName: String, onResult: (Boolean, String?) -> Unit) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    onResult(true, null)
+                    val user = firebaseAuth.currentUser
+                    // Set display name on the newly created user
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(displayName)
+                        .build()
+                    user?.updateProfile(profileUpdates)
+                        ?.addOnCompleteListener {
+                            // Save display name to Firestore users collection
+                            user.let { u ->
+                                saveUserToFirestore(u.uid, displayName, email)
+                            }
+                            onResult(true, null)
+                        }
+                        ?: onResult(true, null)
                 } else {
                     onResult(false, task.exception?.message)
                 }

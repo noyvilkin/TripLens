@@ -14,6 +14,7 @@ import com.colman.triplens.data.repo.PostRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -46,7 +47,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val profileUpdateSuccess: LiveData<Boolean> = _profileUpdateSuccess
 
     private val _error = MutableLiveData<String?>()
+    /** General errors (e.g. post deletion) — observed by ProfileFragment. */
     val error: LiveData<String?> = _error
+
+    private val _profileUpdateError = MutableLiveData<String?>()
+    /** Profile-update errors — observed only by EditProfileDialogFragment. */
+    val profileUpdateError: LiveData<String?> = _profileUpdateError
 
     private val _postDeleted = MutableLiveData(false)
     val postDeleted: LiveData<Boolean> = _postDeleted
@@ -79,18 +85,34 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
      */
     fun updateProfile(displayName: String, newImageUri: Uri?) {
         val user = FirebaseAuth.getInstance().currentUser ?: run {
-            _error.value = "No user signed in"
+            _profileUpdateError.value = "No user signed in"
             return
         }
 
         if (displayName.isBlank()) {
-            _error.value = "Display name cannot be empty"
+            _profileUpdateError.value = "Display name cannot be empty"
             return
         }
 
         _isUpdatingProfile.value = true
         viewModelScope.launch {
             try {
+                // Check if the new display name is taken (skip if unchanged)
+                val nameChanged = displayName != user.displayName
+                if (nameChanged) {
+                    val snapshot = FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .whereEqualTo("displayName", displayName)
+                        .get()
+                        .await()
+                    val taken = snapshot.documents.any { it.id != user.uid }
+                    if (taken) {
+                        _isUpdatingProfile.postValue(false)
+                        _profileUpdateError.postValue("Display name \"$displayName\" is already taken")
+                        return@launch
+                    }
+                }
+
                 // Upload new profile image if provided
                 val imageUrl = if (newImageUri != null) {
                     repository.uploadImage(newImageUri)
@@ -106,6 +128,15 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
                 user.updateProfile(profileUpdates).await()
 
+                // Update Firestore users collection
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.uid)
+                    .set(mapOf(
+                        "displayName" to displayName,
+                        "email" to (user.email ?: "")
+                    ))
+
                 // Update all posts by this user in Room and Firestore
                 repository.updateUserInfoInPosts(user.uid, displayName, imageUrl)
 
@@ -118,7 +149,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             } catch (e: Exception) {
                 Log.w(TAG, "Profile update failed: ${e.message}")
                 _isUpdatingProfile.postValue(false)
-                _error.postValue(e.message ?: "Failed to update profile")
+                _profileUpdateError.postValue(e.message ?: "Failed to update profile")
             }
         }
     }
@@ -143,6 +174,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun clearError() {
         _error.value = null
+    }
+
+    fun clearProfileUpdateError() {
+        _profileUpdateError.value = null
     }
 
     fun clearProfileUpdateSuccess() {
