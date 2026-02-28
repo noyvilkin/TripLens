@@ -3,6 +3,18 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Brand Colors -->
+    <color name="primary_purple">#7C4DFF</color>
+    <color name="primary_purple_light">#EDE7F6</color>
+    <color name="primary_purple_dark">#5A2D96</color>
+
+    <!-- Neutral Colors -->
+    <color name="neutral_dark">#1C1B1F</color>
+    <color name="neutral_medium">#49454E</color>
+    <color name="neutral_light">#79747E</color>
+    <color name="neutral_lighter">#F5F5F5</color>
+    <color name="background_light">#F8F7FC</color>
+
     <!-- Branded Snackbar -->
     <color name="snackbar_background">#CDBAE8</color>
     <color name="snackbar_text_color">#1C1B1F</color>

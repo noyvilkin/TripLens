@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.colman.triplens.data.model.Post
 import com.colman.triplens.databinding.ItemPostBinding
 import com.squareup.picasso.Picasso
+import java.util.concurrent.TimeUnit
 
 class FeedAdapter(
     private val onPostClick: (Post) -> Unit
@@ -39,41 +40,58 @@ class FeedAdapter(
             // Short caption — truncated in feed
             binding.tvPostDescription.text = post.description.ifEmpty { "Tap to see details…" }
 
+            // ── Timestamp ──
+            binding.tvTimestamp.text = formatTimeAgo(post.timestamp)
+
             // ── Thumbnail (first image only) ──
             loadThumbnail(post)
 
-            // ── Weather summary ──
+            // ── Country Info Grid ──
+            binding.tvCapital.text = post.countryCapital.ifEmpty { "N/A" }
+            binding.tvCurrency.text = post.countryCurrency.ifEmpty { "N/A" }
+            binding.tvPopulation.text = post.countryPopulation.ifEmpty { "N/A" }
+            binding.tvLanguages.text = post.countryLanguages.ifEmpty { "N/A" }
+
+            // ── Enhanced Weather Details ──
             val temp = post.temperature.ifEmpty { null }
             val condition = post.weatherCondition.ifEmpty { null }
-            if (temp != null || condition != null) {
-                binding.tvWeatherInfo.text = buildString {
-                    if (temp != null) append("${temp}°C")
-                    if (condition != null) {
-                        if (temp != null) append("\n")
-                        append(condition)
-                    }
-                }
-                if (post.weatherIcon.isNotEmpty()) {
-                    val iconUrl = "https://openweathermap.org/img/wn/${post.weatherIcon}@2x.png"
-                    Picasso.get().load(iconUrl).into(binding.ivWeatherIcon)
-                }
+
+            if (temp != null) {
+                binding.tvTemperature.text = "${temp}°C"
             } else {
-                binding.tvWeatherInfo.text = "Weather\nunavailable"
+                binding.tvTemperature.text = "N/A"
             }
 
-            // ── Country summary ──
-            val capital = post.countryCapital.ifEmpty { null }
-            val population = post.countryPopulation.ifEmpty { null }
-            if (capital != null || population != null) {
-                binding.tvCountryInfo.text = buildString {
-                    if (capital != null) append("Capital: $capital")
-                    if (population != null) {
-                        if (capital != null) append("\n")
-                        append("Pop: $population")
-                    }
-                }
+            if (condition != null) {
+                binding.tvWeatherCondition.text = condition
             } else {
-                binding.tvCountryInfo.text = "Country info\nunavailable"
+                binding.tvWeatherCondition.text = "N/A"
+            }
+
+            if (post.weatherIcon.isNotEmpty()) {
+                val iconUrl = "https://openweathermap.org/img/wn/${post.weatherIcon}@2x.png"
+                binding.ivWeatherIcon.visibility = View.VISIBLE
+                Picasso.get()
+                    .load(iconUrl)
+                    .placeholder(android.R.drawable.ic_menu_compass)
+                    .error(android.R.drawable.ic_menu_report_image)
+                    .fit()
+                    .centerInside()
+                    .into(binding.ivWeatherIcon)
+            } else {
+                binding.ivWeatherIcon.visibility = View.GONE
+            }
+
+            binding.tvWindSpeed.text = if (post.windSpeed.isNotEmpty()) {
+                "${post.windSpeed} km/h"
+            } else {
+                "N/A"
+            }
+
+            binding.tvHumidity.text = if (post.humidity.isNotEmpty()) {
+                "${post.humidity}%"
+            } else {
+                "N/A"
             }
 
             // ── Country flag (in header) ──
@@ -92,6 +110,23 @@ class FeedAdapter(
                     .into(binding.ivUserProfile)
             } else {
                 binding.ivUserProfile.setImageResource(android.R.drawable.ic_menu_compass)
+            }
+        }
+
+        /**
+         * Format timestamp to relative time (e.g., "1d ago", "2h ago")
+         */
+        private fun formatTimeAgo(timestamp: Long): String {
+            val now = System.currentTimeMillis()
+            val diff = now - timestamp
+
+            return when {
+                diff < TimeUnit.MINUTES.toMillis(1) -> "now"
+                diff < TimeUnit.HOURS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toMinutes(diff)}m ago"
+                diff < TimeUnit.DAYS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toHours(diff)}h ago"
+                diff < TimeUnit.DAYS.toMillis(7) -> "${TimeUnit.MILLISECONDS.toDays(diff)}d ago"
+                diff < TimeUnit.DAYS.toMillis(30) -> "${TimeUnit.MILLISECONDS.toDays(diff) / 7}w ago"
+                else -> "${TimeUnit.MILLISECONDS.toDays(diff) / 30}mo ago"
             }
         }
 

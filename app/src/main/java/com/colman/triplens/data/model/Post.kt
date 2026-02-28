@@ -27,6 +27,8 @@ data class Post(
     val temperature: String = "",
     val weatherCondition: String = "",
     val weatherIcon: String = "",
+    val humidity: String = "",
+    val windSpeed: String = "",
 
     val timestamp: Long = System.currentTimeMillis()
 )

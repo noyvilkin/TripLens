@@ -156,8 +156,10 @@
 
                         <ImageView
                             android:id="@+id/ivWeatherIcon"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:padding="10dp"
+                            android:background="@drawable/bg_weather_icon"
                             android:scaleType="fitCenter"
                             android:contentDescription="Weather icon" />
 

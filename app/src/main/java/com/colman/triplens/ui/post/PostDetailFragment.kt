@@ -129,7 +129,16 @@ class PostDetailFragment : Fragment() {
             }
             if (post.weatherIcon.isNotEmpty()) {
                 val iconUrl = "https://openweathermap.org/img/wn/${post.weatherIcon}@2x.png"
-                Picasso.get().load(iconUrl).into(binding.ivWeatherIcon)
+                binding.ivWeatherIcon.visibility = View.VISIBLE
+                Picasso.get()
+                    .load(iconUrl)
+                    .placeholder(android.R.drawable.ic_menu_compass)
+                    .error(android.R.drawable.ic_menu_report_image)
+                    .fit()
+                    .centerInside()
+                    .into(binding.ivWeatherIcon)
+            } else {
+                binding.ivWeatherIcon.visibility = View.GONE
             }
         } else {
             binding.cardWeather.visibility = View.VISIBLE
