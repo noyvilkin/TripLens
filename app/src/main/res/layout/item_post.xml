@@ -79,7 +79,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="12sp"
                         android:textColor="#79747E"
-                        tools:text="1d ago" />
+                        tools:text="30m ago" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -89,6 +89,7 @@
                 android:layout_width="36dp"
                 android:layout_height="24dp"
                 android:scaleType="fitCenter"
+                android:background="@drawable/bg_flag_border"
                 android:contentDescription="Country flag"
                 android:visibility="gone"
                 tools:visibility="visible" />

@@ -60,32 +60,41 @@
                         android:gravity="center_vertical"
                         android:layout_marginTop="2dp">
 
-                        <ImageView
-                            android:layout_width="12dp"
-                            android:layout_height="12dp"
-                            android:src="@android:drawable/ic_menu_mylocation"
-                            app:tint="@color/neutral_light"
-                            android:contentDescription="Location" />
-
                         <TextView
                             android:id="@+id/tvDestination"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
                             android:textSize="13sp"
                             android:textColor="@color/neutral_light"
                             tools:text="Tokyo" />
 
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" • "
+                            android:textSize="13sp"
+                            android:textColor="@color/neutral_light" />
+
+                        <TextView
                             android:id="@+id/tvTimestamp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
                             android:textSize="13sp"
                             android:textColor="@color/neutral_light"
-                            tools:text="1d ago" />
+                            tools:text="30m ago" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- Country Flag -->
+                <ImageView
+                    android:id="@+id/ivCountryFlag"
+                    android:layout_width="36dp"
+                    android:layout_height="24dp"
+                    android:scaleType="fitCenter"
+                    android:background="@drawable/bg_flag_border"
+                    android:contentDescription="Country flag"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
             </LinearLayout>
 
             <!-- Hero Image -->

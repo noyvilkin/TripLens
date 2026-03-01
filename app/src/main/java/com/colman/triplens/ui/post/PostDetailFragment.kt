@@ -123,6 +123,18 @@ class PostDetailFragment : Fragment() {
                 .into(binding.ivUserProfileComment)
         }
 
+        // Country Flag
+        if (post.countryFlag.isNotEmpty()) {
+            binding.ivCountryFlag.visibility = View.VISIBLE
+            Picasso.get()
+                .load(post.countryFlag)
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .error(android.R.drawable.ic_menu_report_image)
+                .into(binding.ivCountryFlag)
+        } else {
+            binding.ivCountryFlag.visibility = View.GONE
+        }
+
         // ── Swipeable hero images ──
         setupImagePager(post)
 
