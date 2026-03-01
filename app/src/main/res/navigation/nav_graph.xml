@@ -17,6 +17,13 @@
         android:id="@+id/action_global_profileFragment"
         app:destination="@id/profileFragment" />
 
+    <!-- Global: navigate to feed from anywhere -->
+    <action
+        android:id="@+id/action_global_feedFragment"
+        app:destination="@id/feedFragment"
+        app:popUpTo="@id/feedFragment"
+        app:popUpToInclusive="true" />
+
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.colman.triplens.ui.auth.LoginFragment"

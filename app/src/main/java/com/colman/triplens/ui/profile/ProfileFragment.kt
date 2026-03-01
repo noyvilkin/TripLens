@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.colman.triplens.R
-import com.colman.triplens.base.MainActivity
 import com.colman.triplens.databinding.FragmentProfileBinding
 import com.colman.triplens.util.BrandedSnackbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -112,13 +111,6 @@ class ProfileFragment : Fragment() {
             error?.let {
                 BrandedSnackbar.showError(binding.root, it)
                 viewModel.clearError()
-            }
-        }
-
-        // Profile update success — refresh toolbar profile image
-        viewModel.profileUpdateSuccess.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                (activity as? MainActivity)?.loadProfileImage()
             }
         }
     }

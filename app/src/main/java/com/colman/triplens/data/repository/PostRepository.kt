@@ -65,7 +65,11 @@ class PostRepository(private val postDao: PostDao) {
                 val temp = "%.1f".format(response.main.temp)
                 val condition = response.weather.firstOrNull()?.main ?: ""
                 val icon = response.weather.firstOrNull()?.icon ?: ""
-                WeatherResult(temp, condition, icon)
+                val humidity = response.main.humidity?.toString() ?: ""
+                val windSpeed = response.wind?.speed?.let { speedMs ->
+                    "%.1f".format(speedMs * 3.6)
+                } ?: ""
+                WeatherResult(temp, condition, icon, humidity, windSpeed)
             } catch (e: Exception) {
                 Log.w(TAG, "Weather fetch failed for '$city': ${e.message}")
                 null
@@ -133,13 +137,15 @@ class PostRepository(private val postDao: PostDao) {
         var enriched = post
 
         // Only fetch weather if not already populated
-        if (post.temperature.isEmpty()) {
+        if (post.temperature.isEmpty() || post.humidity.isEmpty() || post.windSpeed.isEmpty()) {
             val weather = fetchWeatherData(destination)
             if (weather != null) {
                 enriched = enriched.copy(
                     temperature = weather.temp,
                     weatherCondition = weather.condition,
-                    weatherIcon = weather.icon
+                    weatherIcon = weather.icon,
+                    humidity = weather.humidity,
+                    windSpeed = weather.windSpeed
                 )
             }
         }
@@ -254,7 +260,10 @@ class PostRepository(private val postDao: PostDao) {
                     // Enrich posts that don't have API data yet
                     val enrichedPosts = posts.map { post ->
                         if (post.destination.isNotEmpty() &&
-                            (post.temperature.isEmpty() || post.countryCapital.isEmpty())
+                            (post.temperature.isEmpty() ||
+                                post.humidity.isEmpty() ||
+                                post.windSpeed.isEmpty() ||
+                                post.countryCapital.isEmpty())
                         ) {
                             enrichPostWithApiData(post)
                         } else {
@@ -341,7 +350,9 @@ class PostRepository(private val postDao: PostDao) {
 data class WeatherResult(
     val temp: String,
     val condition: String,
-    val icon: String
+    val icon: String,
+    val humidity: String,
+    val windSpeed: String
 )
 
 /** Parsed country result from RestCountries API */
