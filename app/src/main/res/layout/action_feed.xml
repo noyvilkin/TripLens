@@ -2,18 +2,18 @@
 <com.google.android.material.chip.Chip
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/chipProfile"
+    android:id="@+id/chipFeed"
     style="@style/Widget.Material3.Chip.Assist"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginEnd="8dp"
-    android:text="Profile"
-    android:textColor="?attr/colorOnSurface"
+    android:text="Feed"
+    android:textColor="@color/white"
     android:clickable="true"
     android:focusable="true"
-    app:chipIcon="@drawable/ic_person"
-    app:chipIconTint="?attr/colorOnSurface"
-    app:chipBackgroundColor="@android:color/transparent"
+    app:chipIcon="@drawable/ic_home"
+    app:chipIconTint="@color/white"
+    app:chipBackgroundColor="@color/neutral_dark"
     app:chipStrokeWidth="0dp" />
 
 

@@ -14,8 +14,10 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorSurface"
         android:elevation="4dp"
+        app:menu="@menu/menu_main"
+        app:navigationIcon="@drawable/ic_app_logo"
         app:title="@string/app_name"
-        app:menu="@menu/menu_main" />
+        app:titleTextColor="?attr/colorOnSurface" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"

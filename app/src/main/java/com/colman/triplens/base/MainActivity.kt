@@ -2,10 +2,9 @@ package com.colman.triplens.base
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
-import android.widget.PopupMenu
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
@@ -13,17 +12,15 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.colman.triplens.R
-import com.colman.triplens.auth.AuthRepository
-import com.colman.triplens.util.BrandedSnackbar
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.firebase.auth.FirebaseAuth
-import com.squareup.picasso.Picasso
+import com.google.android.material.chip.Chip
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
     private lateinit var toolbar: MaterialToolbar
-    private var profileImageView: ImageView? = null
+    private var feedChip: Chip? = null
+    private var profileChip: Chip? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,88 +57,77 @@ class MainActivity : AppCompatActivity() {
                 }
                 else -> {
                     toolbar.visibility = View.VISIBLE
-                    loadProfileImage()
+                    updateNavigationState(dest.id)
                 }
             }
         }
     }
 
     private fun setupToolbarMenu() {
+        // Get the action view of the feed menu item
+        val feedItem = toolbar.menu.findItem(R.id.action_feed)
+        feedChip = feedItem?.actionView?.findViewById(R.id.chipFeed)
+
+        // Set click listener on the feed chip to navigate to feed
+        feedChip?.setOnClickListener {
+            val currentDest = navController.currentDestination?.id
+            if (currentDest != R.id.feedFragment) {
+                navController.navigate(R.id.action_global_feedFragment)
+            }
+        }
+
         // Get the action view of the profile menu item
         val profileItem = toolbar.menu.findItem(R.id.action_profile)
-        val actionView = profileItem?.actionView
+        profileChip = profileItem?.actionView?.findViewById(R.id.chipProfile)
 
-        profileImageView = actionView?.findViewById(R.id.ivMenuProfile)
-
-        // Set click listener on the action view to show popup
-        actionView?.setOnClickListener { view ->
-            showProfilePopup(view)
-        }
-
-        loadProfileImage()
-    }
-
-    private fun showProfilePopup(anchor: View) {
-        val popup = PopupMenu(this, anchor)
-        popup.menu.add(0, MENU_MY_PROFILE, 0, R.string.my_profile)
-        popup.menu.add(0, MENU_LOGOUT, 1, R.string.logout)
-
-        popup.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                MENU_MY_PROFILE -> {
-                    val currentDest = navController.currentDestination?.id
-                    if (currentDest != R.id.profileFragment) {
-                        navController.navigate(R.id.action_global_profileFragment)
-                    }
-                    true
-                }
-                MENU_LOGOUT -> {
-                    performLogout()
-                    true
-                }
-                else -> false
-            }
-        }
-        popup.show()
-    }
-
-    private fun performLogout() {
-        val authRepo = AuthRepository(this)
-        authRepo.logout()
-
-        // Show branded "Logged Out" Snackbar on the activity's root view
-        // so it remains visible on the login screen.
-        BrandedSnackbar.showSuccess(
-            findViewById(R.id.main),
-            getString(R.string.logged_out_message)
-        )
-
-        navController.navigate(R.id.action_global_loginFragment)
-    }
-
-    /**
-     * Load the current user's profile image into the toolbar menu icon.
-     */
-    fun loadProfileImage() {
-        val user = FirebaseAuth.getInstance().currentUser
-        val photoUrl = user?.photoUrl?.toString()
-
-        profileImageView?.let { iv ->
-            if (!photoUrl.isNullOrEmpty()) {
-                Picasso.get()
-                    .load(photoUrl)
-                    .placeholder(android.R.drawable.ic_menu_myplaces)
-                    .error(android.R.drawable.ic_menu_myplaces)
-                    .fit().centerCrop()
-                    .into(iv)
-            } else {
-                iv.setImageResource(android.R.drawable.ic_menu_myplaces)
+        // Set click listener on the profile chip to navigate to profile
+        profileChip?.setOnClickListener {
+            val currentDest = navController.currentDestination?.id
+            if (currentDest != R.id.profileFragment) {
+                navController.navigate(R.id.action_global_profileFragment)
             }
         }
     }
 
-    companion object {
-        private const val MENU_MY_PROFILE = 1
-        private const val MENU_LOGOUT = 2
+    private fun updateNavigationState(currentDestinationId: Int) {
+        val darkColor = ContextCompat.getColor(this, R.color.neutral_dark)
+        val whiteColor = ContextCompat.getColor(this, R.color.white)
+        val transparentColor = ContextCompat.getColor(this, android.R.color.transparent)
+        val defaultTextColor = ContextCompat.getColor(this, R.color.neutral_medium)
+
+        when (currentDestinationId) {
+            R.id.feedFragment -> {
+                // Feed is active - black background
+                feedChip?.chipBackgroundColor = android.content.res.ColorStateList.valueOf(darkColor)
+                feedChip?.setTextColor(whiteColor)
+                feedChip?.chipIconTint = android.content.res.ColorStateList.valueOf(whiteColor)
+
+                // Profile is inactive - transparent background
+                profileChip?.chipBackgroundColor = android.content.res.ColorStateList.valueOf(transparentColor)
+                profileChip?.setTextColor(defaultTextColor)
+                profileChip?.chipIconTint = android.content.res.ColorStateList.valueOf(defaultTextColor)
+            }
+            R.id.profileFragment -> {
+                // Profile is active - black background
+                profileChip?.chipBackgroundColor = android.content.res.ColorStateList.valueOf(darkColor)
+                profileChip?.setTextColor(whiteColor)
+                profileChip?.chipIconTint = android.content.res.ColorStateList.valueOf(whiteColor)
+
+                // Feed is inactive - transparent background
+                feedChip?.chipBackgroundColor = android.content.res.ColorStateList.valueOf(transparentColor)
+                feedChip?.setTextColor(defaultTextColor)
+                feedChip?.chipIconTint = android.content.res.ColorStateList.valueOf(defaultTextColor)
+            }
+            else -> {
+                // Both inactive for other screens
+                feedChip?.chipBackgroundColor = android.content.res.ColorStateList.valueOf(transparentColor)
+                feedChip?.setTextColor(defaultTextColor)
+                feedChip?.chipIconTint = android.content.res.ColorStateList.valueOf(defaultTextColor)
+
+                profileChip?.chipBackgroundColor = android.content.res.ColorStateList.valueOf(transparentColor)
+                profileChip?.setTextColor(defaultTextColor)
+                profileChip?.chipIconTint = android.content.res.ColorStateList.valueOf(defaultTextColor)
+            }
+        }
     }
 }
