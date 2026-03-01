@@ -5,125 +5,152 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ui.post.PostDetailFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@color/white">
 
-            <!-- Hero Swipeable Travel Images -->
+            <!-- User Header Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="12dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivUserProfile"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    android:src="@android:color/darker_gray" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:id="@+id/tvUserName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/neutral_dark"
+                        tools:text="Mike Chen" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="2dp">
+
+                        <ImageView
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:src="@android:drawable/ic_menu_mylocation"
+                            app:tint="@color/neutral_light"
+                            android:contentDescription="Location" />
+
+                        <TextView
+                            android:id="@+id/tvDestination"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:textSize="13sp"
+                            android:textColor="@color/neutral_light"
+                            tools:text="Tokyo" />
+
+                        <TextView
+                            android:id="@+id/tvTimestamp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textSize="13sp"
+                            android:textColor="@color/neutral_light"
+                            tools:text="1d ago" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Hero Image -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp">
+                android:layout_height="280dp"
+                android:layout_marginTop="8dp">
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/vpImages"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/darker_gray" />
-
-                <!-- Back button overlay -->
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fabBack"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="12dp"
-                    android:layout_gravity="top|start"
-                    android:contentDescription="Go back"
-                    app:fabSize="mini"
-                    app:srcCompat="@android:drawable/ic_menu_revert"
-                    app:backgroundTint="#B3FFFFFF" />
-
-                <!-- Page counter overlay -->
-                <TextView
-                    android:id="@+id/tvPageIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="12dp"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="5dp"
-                    android:background="#99000000"
-                    android:textColor="@android:color/white"
-                    android:textSize="13sp"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    tools:text="1 / 3" />
             </FrameLayout>
+
+            <!-- Image Thumbnails -->
+            <HorizontalScrollView
+                android:id="@+id/thumbnailScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/thumbnailContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Thumbnails will be added programmatically -->
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Image Counter -->
+            <TextView
+                android:id="@+id/tvPageIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="12sp"
+                android:textColor="@color/neutral_light"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="Image 1 of 2" />
 
             <!-- Content Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- User Row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivUserProfile"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:scaleType="centerCrop"
-                        app:shapeAppearanceOverlay="@style/CircleImage"
-                        android:src="@android:color/darker_gray" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="12dp">
-
-                        <TextView
-                            android:id="@+id/tvUserName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            tools:text="Jane Traveler" />
-
-                        <TextView
-                            android:id="@+id/tvDestination"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="13sp"
-                            android:textColor="?android:textColorSecondary"
-                            android:drawablePadding="4dp"
-                            tools:text="Paris, France" />
-                    </LinearLayout>
-
-                    <!-- Flag -->
-                    <ImageView
-                        android:id="@+id/ivCountryFlag"
-                        android:layout_width="40dp"
-                        android:layout_height="28dp"
-                        android:scaleType="fitCenter"
-                        android:contentDescription="Country flag" />
-                </LinearLayout>
+                android:paddingHorizontal="16dp">
 
                 <!-- Title -->
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="22sp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="8dp"
-                    tools:text="My Amazing Trip to Paris" />
+                    android:textColor="@color/neutral_dark"
+                    android:layout_marginBottom="12dp"
+                    tools:text="Tokyo Nightlife" />
 
                 <!-- Short Caption -->
                 <TextView
@@ -131,131 +158,383 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:textColor="?android:textColorSecondary"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="@color/neutral_medium"
                     android:layout_marginBottom="16dp"
-                    tools:text="A quick snapshot of an unforgettable journey." />
+                    tools:text="The neon lights of Tokyo create a cyberpunk dreamscape. From Shibuya to Shinjuku, this city never sleeps!" />
 
-                <!-- ═══ Weather & Country Info Cards ═══ -->
+                <!-- Detailed Description Section -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="#F5F5F5">
 
-                <!-- Weather Card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Detailed Description"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="@color/neutral_dark"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvLongDescription"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="4dp"
+                            android:textColor="@color/neutral_medium"
+                            tools:text="Tokyo at night is an experience unlike any other. The streets are alive with energy, and every corner offers something new to discover. I spent hours just wandering through the neon-lit streets, taking in the sights and sounds of this incredible city." />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Country Info Cards Grid -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <!-- Capital Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardCapital"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F5F5F5">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📍 Capital"
+                                android:textSize="10sp"
+                                android:textColor="#79747E"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvCapital"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="13sp"
+                                android:textColor="#1C1B1F"
+                                android:layout_marginTop="4dp"
+                                android:textStyle="bold"
+                                tools:text="Tokyo" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Currency Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardCurrency"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F5F5F5">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="💱 Currency"
+                                android:textSize="10sp"
+                                android:textColor="#79747E"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvCurrency"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="13sp"
+                                android:textColor="#1C1B1F"
+                                android:layout_marginTop="4dp"
+                                android:textStyle="bold"
+                                tools:text="¥ Japanese yen" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- Population Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardPopulation"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F5F5F5">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="👥 Population"
+                                android:textSize="10sp"
+                                android:textColor="#79747E"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvPopulation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="13sp"
+                                android:textColor="#1C1B1F"
+                                android:layout_marginTop="4dp"
+                                android:textStyle="bold"
+                                tools:text="123.2M" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Languages Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLanguages"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F5F5F5">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🗣️ Languages"
+                                android:textSize="10sp"
+                                android:textColor="#79747E"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvLanguages"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="13sp"
+                                android:textColor="#1C1B1F"
+                                android:layout_marginTop="4dp"
+                                android:textStyle="bold"
+                                tools:text="Japanese" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Current Weather Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current Weather"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="@color/neutral_dark"
+                    android:layout_marginBottom="8dp" />
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardWeather"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="20dp"
                     app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp"
-                    app:cardBackgroundColor="#F0F7FF">
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F5F5F5"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="14dp">
-
-                        <ImageView
-                            android:id="@+id/ivWeatherIcon"
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:padding="10dp"
-                            android:background="@drawable/bg_weather_icon"
-                            android:scaleType="fitCenter"
-                            android:contentDescription="Weather icon" />
+                        android:padding="12dp">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginStart="12dp">
+                            android:gravity="center_vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Weather"
-                                android:textStyle="bold"
+                                android:text="Current Weather"
+                                android:textSize="11sp"
+                                android:textColor="#79747E"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="6dp">
+
+                                <ImageView
+                                    android:id="@+id/ivWeatherIcon"
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:padding="8dp"
+                                    android:background="@drawable/bg_weather_icon"
+                                    android:scaleType="fitCenter"
+                                    android:contentDescription="Weather icon"
+                                    tools:src="@android:drawable/ic_dialog_info" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:layout_marginStart="8dp">
+
+                                    <TextView
+                                        android:id="@+id/tvTemperature"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="18sp"
+                                        android:textColor="#1C1B1F"
+                                        android:textStyle="bold"
+                                        tools:text="24°C" />
+
+                                    <TextView
+                                        android:id="@+id/tvWeatherCondition"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="12sp"
+                                        android:textColor="#79747E"
+                                        tools:text="Clear" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Wind Speed -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="💨"
+                                android:textSize="20sp" />
+
+                            <TextView
+                                android:id="@+id/tvWindSpeed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:textSize="12sp"
-                                android:textColor="#4A90D9" />
+                                android:textColor="#1C1B1F"
+                                android:layout_marginTop="4dp"
+                                android:textStyle="bold"
+                                tools:text="8 km/h" />
+                        </LinearLayout>
+
+                        <!-- Humidity -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="12dp">
 
                             <TextView
-                                android:id="@+id/tvWeatherInfo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="15sp"
-                                tools:text="22.5°C, Clear sky" />
+                                android:text="💧"
+                                android:textSize="20sp" />
+
+                            <TextView
+                                android:id="@+id/tvHumidity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="12sp"
+                                android:textColor="#1C1B1F"
+                                android:layout_marginTop="4dp"
+                                android:textStyle="bold"
+                                tools:text="55%" />
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Country Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardCountry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp"
-                    app:cardBackgroundColor="#F0FFF0">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Country Info"
-                            android:textStyle="bold"
-                            android:textSize="12sp"
-                            android:textColor="#2E8B57"
-                            android:layout_marginBottom="6dp" />
-
-                        <TextView
-                            android:id="@+id/tvCountryInfo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:lineSpacingExtra="4dp"
-                            tools:text="Capital: Paris\nPopulation: 67.4M\nLanguages: French\nCurrency: Euro" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- ═══ Detailed Description (only in detail view) ═══ -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="About This Trip"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="6dp" />
-
-                <TextView
-                    android:id="@+id/tvLongDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:lineSpacingExtra="4dp"
-                    android:layout_marginBottom="24dp"
-                    tools:text="A long detailed description of the trip goes here..." />
-
-                <!-- ═══ Divider ═══ -->
+                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="#E0E0E0"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginVertical="16dp" />
 
                 <!-- ═══ Comments Section ═══ -->
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Comments"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        app:tint="@color/neutral_dark"
+                        android:contentDescription="Comments" />
+
+                    <TextView
+                        android:id="@+id/tvCommentsTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Comments (0)"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/neutral_dark" />
+                </LinearLayout>
 
                 <ProgressBar
                     android:id="@+id/progressComments"
@@ -270,9 +549,9 @@
                     android:layout_height="wrap_content"
                     android:text="No comments yet. Be the first!"
                     android:textSize="13sp"
-                    android:textColor="?android:textColorSecondary"
+                    android:textColor="@color/neutral_light"
                     android:textAlignment="center"
-                    android:paddingVertical="12dp"
+                    android:paddingVertical="16dp"
                     android:visibility="visible" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -280,54 +559,67 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
 
-                <!-- Comment Input -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+            <!-- Comment Input (Fixed at bottom) -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:background="@color/white">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivUserProfileComment"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    android:src="@android:color/darker_gray" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:hint="Add a comment…"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    app:boxCornerRadiusBottomEnd="20dp"
+                    app:boxCornerRadiusBottomStart="20dp"
+                    app:boxCornerRadiusTopEnd="20dp"
+                    app:boxCornerRadiusTopStart="20dp"
+                    app:boxStrokeWidth="1dp">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etComment"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="Write a comment…"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        app:boxCornerRadiusBottomEnd="24dp"
-                        app:boxCornerRadiusBottomStart="24dp"
-                        app:boxCornerRadiusTopEnd="24dp"
-                        app:boxCornerRadiusTopStart="24dp">
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:maxLines="3"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etComment"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textMultiLine|textCapSentences"
-                            android:maxLines="3" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fabSendComment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:contentDescription="Send comment"
-                        app:fabSize="mini"
-                        app:srcCompat="@android:drawable/ic_menu_send" />
-                </LinearLayout>
+                <ImageView
+                    android:id="@+id/fabSendComment"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="6dp"
+                    android:background="@drawable/bg_send_button"
+                    android:src="@android:drawable/ic_menu_send"
+                    app:tint="@color/white"
+                    android:contentDescription="Send comment" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Loading overlay -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

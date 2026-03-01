@@ -1,15 +1,20 @@
 package com.colman.triplens.ui.post
 
+import android.graphics.Color
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import com.colman.triplens.R
 import com.colman.triplens.data.model.Post
 import com.colman.triplens.databinding.FragmentPostDetailBinding
 import com.colman.triplens.ui.common.ImagePagerAdapter
@@ -52,10 +57,6 @@ class PostDetailFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.fabBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
         binding.fabSendComment.setOnClickListener {
             val text = binding.etComment.text?.toString() ?: ""
             if (text.isNotBlank()) {
@@ -78,6 +79,9 @@ class PostDetailFragment : Fragment() {
             commentAdapter.submitList(comments)
             binding.tvNoComments.visibility =
                 if (comments.isEmpty()) View.VISIBLE else View.GONE
+
+            // Update comments count
+            binding.tvCommentsTitle.text = "Comments (${comments.size})"
         }
 
         viewModel.isLoadingComments.observe(viewLifecycleOwner) { loading ->
@@ -97,11 +101,26 @@ class PostDetailFragment : Fragment() {
         binding.tvUserName.text = post.userName
         binding.tvDestination.text = post.destination
 
+        // Format timestamp
+        val timeAgo = DateUtils.getRelativeTimeSpanString(
+            post.timestamp,
+            System.currentTimeMillis(),
+            DateUtils.MINUTE_IN_MILLIS,
+            DateUtils.FORMAT_ABBREV_RELATIVE
+        )
+        binding.tvTimestamp.text = timeAgo
+
         if (post.userProfileImage.isNotEmpty()) {
             Picasso.get()
                 .load(post.userProfileImage)
                 .placeholder(android.R.drawable.ic_menu_compass)
                 .into(binding.ivUserProfile)
+
+            // Also set for comment input
+            Picasso.get()
+                .load(post.userProfileImage)
+                .placeholder(android.R.drawable.ic_menu_compass)
+                .into(binding.ivUserProfileComment)
         }
 
         // ── Swipeable hero images ──
@@ -115,61 +134,91 @@ class PostDetailFragment : Fragment() {
         val longDesc = post.longDescription.ifEmpty { post.description }
         binding.tvLongDescription.text = longDesc.ifEmpty { "No detailed description available." }
 
+        // ── Country Info Cards ──
+        if (post.countryCapital.isNotEmpty()) {
+            binding.cardCapital.visibility = View.VISIBLE
+            binding.tvCapital.text = post.countryCapital
+        } else {
+            binding.cardCapital.visibility = View.GONE
+        }
+
+        if (post.countryCurrency.isNotEmpty()) {
+            binding.cardCurrency.visibility = View.VISIBLE
+            binding.tvCurrency.text = post.countryCurrency
+        } else {
+            binding.cardCurrency.visibility = View.GONE
+        }
+
+        if (post.countryPopulation.isNotEmpty()) {
+            binding.cardPopulation.visibility = View.VISIBLE
+            binding.tvPopulation.text = post.countryPopulation
+        } else {
+            binding.cardPopulation.visibility = View.GONE
+        }
+
+        if (post.countryLanguages.isNotEmpty()) {
+            binding.cardLanguages.visibility = View.VISIBLE
+            binding.tvLanguages.text = post.countryLanguages
+        } else {
+            binding.cardLanguages.visibility = View.GONE
+        }
+
         // ── Weather ──
         val temp = post.temperature.ifEmpty { null }
         val condition = post.weatherCondition.ifEmpty { null }
+        val humidity = post.humidity.ifEmpty { null }
+        val windSpeed = post.windSpeed.ifEmpty { null }
+
         if (temp != null || condition != null) {
             binding.cardWeather.visibility = View.VISIBLE
-            binding.tvWeatherInfo.text = buildString {
-                if (temp != null) append("${temp}°C")
-                if (condition != null) {
-                    if (temp != null) append(", ")
-                    append(condition)
-                }
+
+            // Temperature
+            if (temp != null) {
+                binding.tvTemperature.text = "${temp}°C"
+                binding.tvTemperature.visibility = View.VISIBLE
+            } else {
+                binding.tvTemperature.visibility = View.GONE
             }
+
+            // Condition
+            if (condition != null) {
+                binding.tvWeatherCondition.text = condition
+                binding.tvWeatherCondition.visibility = View.VISIBLE
+            } else {
+                binding.tvWeatherCondition.visibility = View.GONE
+            }
+
+            // Weather icon
             if (post.weatherIcon.isNotEmpty()) {
                 val iconUrl = "https://openweathermap.org/img/wn/${post.weatherIcon}@2x.png"
                 binding.ivWeatherIcon.visibility = View.VISIBLE
                 Picasso.get()
                     .load(iconUrl)
-                    .placeholder(android.R.drawable.ic_menu_compass)
-                    .error(android.R.drawable.ic_menu_report_image)
-                    .fit()
-                    .centerInside()
+                    .placeholder(android.R.drawable.ic_menu_day)
+                    .error(android.R.drawable.ic_menu_day)
                     .into(binding.ivWeatherIcon)
             } else {
-                binding.ivWeatherIcon.visibility = View.GONE
+                binding.ivWeatherIcon.visibility = View.VISIBLE
+                binding.ivWeatherIcon.setImageResource(android.R.drawable.ic_menu_day)
+            }
+
+            // Humidity
+            if (humidity != null) {
+                binding.tvHumidity.text = humidity
+                binding.tvHumidity.visibility = View.VISIBLE
+            } else {
+                binding.tvHumidity.visibility = View.GONE
+            }
+
+            // Wind speed
+            if (windSpeed != null) {
+                binding.tvWindSpeed.text = windSpeed
+                binding.tvWindSpeed.visibility = View.VISIBLE
+            } else {
+                binding.tvWindSpeed.visibility = View.GONE
             }
         } else {
-            binding.cardWeather.visibility = View.VISIBLE
-            binding.tvWeatherInfo.text = "Weather data unavailable"
-        }
-
-        // ── Country info ──
-        val hasCountryData = post.countryCapital.isNotEmpty() ||
-                post.countryPopulation.isNotEmpty() ||
-                post.countryLanguages.isNotEmpty() ||
-                post.countryCurrency.isNotEmpty()
-
-        if (hasCountryData) {
-            binding.cardCountry.visibility = View.VISIBLE
-            binding.tvCountryInfo.text = buildString {
-                if (post.countryCapital.isNotEmpty()) append("Capital: ${post.countryCapital}\n")
-                if (post.countryPopulation.isNotEmpty()) append("Population: ${post.countryPopulation}\n")
-                if (post.countryLanguages.isNotEmpty()) append("Languages: ${post.countryLanguages}\n")
-                if (post.countryCurrency.isNotEmpty()) append("Currency: ${post.countryCurrency}")
-            }.trimEnd()
-        } else {
-            binding.cardCountry.visibility = View.VISIBLE
-            binding.tvCountryInfo.text = "Country data unavailable"
-        }
-
-        // Flag
-        if (post.countryFlag.isNotEmpty()) {
-            binding.ivCountryFlag.visibility = View.VISIBLE
-            Picasso.get().load(post.countryFlag).into(binding.ivCountryFlag)
-        } else {
-            binding.ivCountryFlag.visibility = View.GONE
+            binding.cardWeather.visibility = View.GONE
         }
     }
 
@@ -184,17 +233,90 @@ class PostDetailFragment : Fragment() {
 
         binding.vpImages.adapter = ImagePagerAdapter(urls)
 
-        if (urls.size > 1) {
-            binding.tvPageIndicator.visibility = View.VISIBLE
-            binding.tvPageIndicator.text = "1 / ${urls.size}"
+        if (urls.isNotEmpty()) {
+            // Setup thumbnails
+            setupThumbnails(urls)
 
-            binding.vpImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    binding.tvPageIndicator.text = "${position + 1} / ${urls.size}"
-                }
-            })
+            // Show page indicator if multiple images
+            if (urls.size > 1) {
+                binding.tvPageIndicator.visibility = View.VISIBLE
+                binding.tvPageIndicator.text = "Image 1 of ${urls.size}"
+
+                binding.vpImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                    override fun onPageSelected(position: Int) {
+                        binding.tvPageIndicator.text = "Image ${position + 1} of ${urls.size}"
+                        highlightThumbnail(position)
+                    }
+                })
+            } else {
+                binding.tvPageIndicator.visibility = View.GONE
+            }
         } else {
+            binding.thumbnailScroll.visibility = View.GONE
             binding.tvPageIndicator.visibility = View.GONE
+        }
+    }
+
+    private fun setupThumbnails(urls: List<String>) {
+        if (urls.size <= 1) {
+            binding.thumbnailScroll.visibility = View.GONE
+            return
+        }
+
+        binding.thumbnailScroll.visibility = View.VISIBLE
+        binding.thumbnailContainer.removeAllViews()
+
+        val thumbnailSizePx = (64 * resources.displayMetrics.density).toInt()
+        val thumbnailMarginPx = (8 * resources.displayMetrics.density).toInt()
+
+        urls.forEachIndexed { index, url ->
+            val thumbnailView = ImageView(requireContext()).apply {
+                layoutParams = ViewGroup.MarginLayoutParams(
+                    thumbnailSizePx,
+                    thumbnailSizePx
+                ).apply {
+                    marginEnd = thumbnailMarginPx
+                }
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setPadding(4)
+
+                // Add border for first thumbnail
+                if (index == 0) {
+                    setBackgroundColor(Color.parseColor("#7C4DFF"))
+                    setPadding(6)
+                } else {
+                    setBackgroundColor(Color.TRANSPARENT)
+                    setPadding(0)
+                }
+
+                setOnClickListener {
+                    binding.vpImages.currentItem = index
+                }
+            }
+
+            Picasso.get()
+                .load(url)
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .error(android.R.drawable.ic_menu_report_image)
+                .fit()
+                .centerCrop()
+                .into(thumbnailView)
+
+            binding.thumbnailContainer.addView(thumbnailView)
+        }
+    }
+
+    private fun highlightThumbnail(position: Int) {
+        val borderWidth = (3 * resources.displayMetrics.density).toInt()
+        for (i in 0 until binding.thumbnailContainer.childCount) {
+            val thumbnail = binding.thumbnailContainer.getChildAt(i) as? ImageView
+            if (i == position) {
+                thumbnail?.setPadding(borderWidth)
+                thumbnail?.setBackgroundColor(Color.parseColor("#7C4DFF"))
+            } else {
+                thumbnail?.setPadding(0)
+                thumbnail?.setBackgroundColor(Color.TRANSPARENT)
+            }
         }
     }
 

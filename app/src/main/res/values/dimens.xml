@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Thumbnail dimensions -->
+    <dimen name="thumbnail_size">64dp</dimen>
+    <dimen name="thumbnail_margin">8dp</dimen>
+</resources>
+
