@@ -43,8 +43,8 @@
             android:scaleType="centerCrop"
             android:src="@android:drawable/ic_menu_myplaces"
             app:shapeAppearanceOverlay="@style/CircleImage"
-            app:strokeColor="@color/primary_purple"
-            app:strokeWidth="2dp" />
+            app:strokeColor="@color/neutral_lighter"
+            app:strokeWidth="0dp" />
 
         <!-- Change Photo Button -->
         <com.google.android.material.button.MaterialButton

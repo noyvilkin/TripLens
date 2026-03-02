@@ -21,8 +21,9 @@
     <string name="max_images_warning">Max %d images allowed</string>
     <string name="create_new_post">Create New Post</string>
     <string name="welcome_traveler">Welcome Traveler</string>
-    <string name="login_subtitle">Sign in to explore the world</string>
-    <string name="register_subtitle">Join the travel community</string>
+    <string name="login_subtitle">Enter your credentials to access your account</string>
+    <string name="register_subtitle">Sign up to start sharing your travel experiences</string>
+    <string name="app_tagline">Capture and share your travel moments</string>
     <string name="click_to_upload">Click to upload images</string>
     <string name="short_description">Short Description</string>
     <string name="detailed_description">Detailed Description</string>

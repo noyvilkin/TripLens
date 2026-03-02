@@ -15,96 +15,115 @@
     app:cardElevation="3dp"
     app:cardBackgroundColor="@android:color/white">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:orientation="vertical">
 
-        <!-- Thumbnail -->
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivPostThumbnail"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:background="@color/neutral_lighter"
-            android:contentDescription="Post image"
-            app:shapeAppearanceOverlay="@style/RoundedThumbnail"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Title -->
-        <TextView
-            android:id="@+id/tvPostTitle"
-            android:layout_width="0dp"
+        <!-- Top row: thumbnail + text -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="8dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/neutral_dark"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/btnEdit"
-            app:layout_constraintStart_toEndOf="@id/ivPostThumbnail"
-            app:layout_constraintTop_toTopOf="@id/ivPostThumbnail"
-            tools:text="Adventure in France" />
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
 
-        <!-- Description -->
-        <TextView
-            android:id="@+id/tvPostDescription"
-            android:layout_width="0dp"
+            <!-- Thumbnail -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivPostThumbnail"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:scaleType="centerCrop"
+                android:background="@color/neutral_lighter"
+                android:contentDescription="Post image"
+                app:shapeAppearanceOverlay="@style/RoundedThumbnail" />
+
+            <!-- Text content -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvPostTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/neutral_dark"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    tools:text="Adventure in France" />
+
+                <TextView
+                    android:id="@+id/tvPostDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/neutral_medium"
+                    android:textSize="13sp"
+                    tools:text="Exploring the beauty of France." />
+
+                <TextView
+                    android:id="@+id/tvPostDestination"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:textColor="@color/primary_purple"
+                    android:textSize="12sp"
+                    tools:text="France" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="12dp"
+            android:background="@color/neutral_lighter" />
+
+        <!-- Bottom action row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="@color/neutral_medium"
-            android:textSize="13sp"
-            app:layout_constraintEnd_toStartOf="@+id/btnEdit"
-            app:layout_constraintStart_toEndOf="@id/ivPostThumbnail"
-            app:layout_constraintTop_toBottomOf="@id/tvPostTitle"
-            tools:text="Exploring the beauty of France." />
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
 
-        <!-- Destination -->
-        <TextView
-            android:id="@+id/tvPostDestination"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
-            android:textColor="@color/primary_purple"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toStartOf="@+id/btnEdit"
-            app:layout_constraintStart_toEndOf="@id/ivPostThumbnail"
-            app:layout_constraintTop_toBottomOf="@id/tvPostDescription"
-            tools:text="France" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Edit"
+                android:textColor="@color/primary_purple"
+                android:textSize="13sp"
+                app:icon="@drawable/ic_edit_post"
+                app:iconTint="@color/primary_purple"
+                app:iconSize="16dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="12dp" />
 
-        <!-- Edit Button -->
-        <ImageButton
-            android:id="@+id/btnEdit"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Edit post"
-            android:scaleType="centerInside"
-            android:src="@android:drawable/ic_menu_edit"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Delete"
+                android:textColor="#E53935"
+                android:textSize="13sp"
+                app:icon="@drawable/ic_delete_post"
+                app:iconTint="#E53935"
+                app:iconSize="16dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="12dp" />
+        </LinearLayout>
 
-        <!-- Delete Button -->
-        <ImageButton
-            android:id="@+id/btnDelete"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Delete post"
-            android:scaleType="centerInside"
-            android:src="@android:drawable/ic_menu_delete"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnEdit" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

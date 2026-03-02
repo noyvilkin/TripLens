@@ -37,8 +37,8 @@
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_myplaces"
                 app:shapeAppearanceOverlay="@style/CircleImage"
-                app:strokeColor="@color/primary_purple"
-                app:strokeWidth="2dp" />
+                app:strokeColor="@color/neutral_lighter"
+                app:strokeWidth="0dp" />
 
             <!-- Display Name -->
             <TextView
@@ -61,18 +61,39 @@
                 android:textSize="14sp"
                 tools:text="john@example.com" />
 
-            <!-- Edit Profile Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEditProfile"
-                style="@style/RoundedOutlinedButton"
+            <!-- Buttons Row -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/edit_profile"
-                app:icon="@android:drawable/ic_menu_edit"
-                app:strokeColor="@color/primary_purple"
-                android:textColor="@color/primary_purple"
-                app:iconTint="@color/primary_purple" />
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <!-- Edit Profile Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditProfile"
+                    style="@style/RoundedOutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/edit_profile"
+                    app:icon="@android:drawable/ic_menu_edit"
+                    app:strokeColor="@color/primary_purple"
+                    android:textColor="@color/primary_purple"
+                    app:iconTint="@color/primary_purple" />
+
+                <!-- Logout Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogout"
+                    style="@style/RoundedOutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/logout"
+                    android:textColor="#E53935"
+                    app:strokeColor="#E53935"
+                    app:icon="@android:drawable/ic_menu_close_clear_cancel"
+                    app:iconTint="#E53935" />
+            </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

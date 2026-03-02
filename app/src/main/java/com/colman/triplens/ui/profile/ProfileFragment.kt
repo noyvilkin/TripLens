@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.colman.triplens.R
+import com.colman.triplens.auth.AuthViewModel
 import com.colman.triplens.databinding.FragmentProfileBinding
 import com.colman.triplens.util.BrandedSnackbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -20,6 +21,7 @@ class ProfileFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var viewModel: ProfileViewModel
+    private lateinit var authViewModel: AuthViewModel
     private lateinit var adapter: ProfilePostAdapter
 
     override fun onCreateView(
@@ -32,6 +34,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
 
         setupRecyclerView()
         setupObservers()
@@ -119,6 +122,14 @@ class ProfileFragment : Fragment() {
         binding.btnEditProfile.setOnClickListener {
             val dialog = EditProfileDialogFragment()
             dialog.show(childFragmentManager, "EditProfileDialog")
+        }
+
+        binding.btnLogout.setOnClickListener {
+            authViewModel.logout()
+            activity?.findViewById<View>(android.R.id.content)?.let { root ->
+                BrandedSnackbar.showSuccess(root, getString(R.string.logged_out_message))
+            }
+            findNavController().navigate(R.id.action_global_loginFragment)
         }
     }
 
