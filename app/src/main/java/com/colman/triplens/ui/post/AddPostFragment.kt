@@ -211,7 +211,7 @@ class AddPostFragment : Fragment() {
 
     /**
      * Render both existing cloud images and newly picked local images
-     * in the preview container.
+     * in the preview container. Toggle the empty-state placeholder.
      */
     private fun refreshAllImagePreviews() {
         binding.imageContainer.removeAllViews()
@@ -241,6 +241,10 @@ class AddPostFragment : Fragment() {
             Picasso.get().load(uri).resize(size, size).centerCrop().into(iv)
             binding.imageContainer.addView(iv)
         }
+
+        // Toggle empty upload placeholder
+        val hasImages = existingUrls.isNotEmpty() || newUris.isNotEmpty()
+        binding.emptyUploadState.visibility = if (hasImages) View.GONE else View.VISIBLE
     }
 
     private fun copyToLocalFile(uri: Uri): Uri? {

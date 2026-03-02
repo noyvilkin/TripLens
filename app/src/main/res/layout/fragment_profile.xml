@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_light"
     tools:context=".ui.profile.ProfileFragment">
 
     <!-- Profile Header Card -->
@@ -12,9 +13,11 @@
         android:id="@+id/cardProfile"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="3dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -24,26 +27,27 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="28dp">
 
             <!-- Profile Image -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivProfileImage"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_myplaces"
                 app:shapeAppearanceOverlay="@style/CircleImage"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp" />
+                app:strokeColor="@color/primary_purple"
+                app:strokeWidth="2dp" />
 
             <!-- Display Name -->
             <TextView
                 android:id="@+id/tvDisplayName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:textSize="20sp"
+                android:layout_marginTop="14dp"
+                android:textColor="@color/neutral_dark"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 tools:text="John Doe" />
 
@@ -53,19 +57,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="?android:textColorSecondary"
+                android:textColor="@color/neutral_light"
                 android:textSize="14sp"
                 tools:text="john@example.com" />
 
             <!-- Edit Profile Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditProfile"
+                style="@style/RoundedOutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:text="@string/edit_profile"
                 app:icon="@android:drawable/ic_menu_edit"
-                style="@style/Widget.Material3.Button.OutlinedButton" />
+                app:strokeColor="@color/primary_purple"
+                android:textColor="@color/primary_purple"
+                app:iconTint="@color/primary_purple" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -75,9 +82,10 @@
         android:id="@+id/tvMyPostsHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
         android:text="@string/my_posts"
+        android:textColor="@color/neutral_dark"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,7 +111,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/no_posts_yet"
-        android:textColor="?android:textColorSecondary"
+        android:textColor="@color/neutral_light"
         android:textSize="15sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
