@@ -2,6 +2,7 @@ package com.colman.triplens.ui.post
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -158,21 +159,29 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
                     }
                 )
 
-                // 3. Enrich with Weather & Country data BEFORE persisting.
-                //    Uses a timeout so the save never hangs if APIs are slow / offline.
-                val enrichedPost = if (destination.isNotBlank()) {
-                    withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) {
-                        repository.enrichPostWithApiData(post)
-                    } ?: post   // fallback: save without enrichment data
-                } else {
-                    post
-                }
-
-                // 4. Persist to Firebase + Room with enriched data
-                repository.savePost(enrichedPost)
+                // 3. Save post immediately for better UX (no waiting for API enrichment)
+                repository.savePost(post)
 
                 _isLoading.postValue(false)
                 _postCreated.postValue(true)
+
+                // 4. Enrich with Weather & Country data in background (non-blocking)
+                //    This happens after navigation, improving perceived performance
+                if (destination.isNotBlank()) {
+                    viewModelScope.launch {
+                        try {
+                            val enrichedPost = withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) {
+                                repository.enrichPostWithApiData(post)
+                            }
+                            if (enrichedPost != null && enrichedPost != post) {
+                                repository.savePost(enrichedPost)  // Update with enriched data
+                            }
+                        } catch (e: Exception) {
+                            // Silent failure - post is already saved, enrichment is bonus
+                            Log.w("AddPostVM", "Background enrichment failed: ${e.message}")
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 _error.postValue(e.message ?: "Failed to save post")

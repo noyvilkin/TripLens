@@ -47,48 +47,48 @@ class FeedAdapter(
             loadThumbnail(post)
 
             // ── Country Info Grid ──
-            binding.tvCapital.text = post.countryCapital.ifEmpty { "N/A" }
-            binding.tvCurrency.text = post.countryCurrency.ifEmpty { "N/A" }
-            binding.tvPopulation.text = post.countryPopulation.ifEmpty { "N/A" }
-            binding.tvLanguages.text = post.countryLanguages.ifEmpty { "N/A" }
+            binding.includeCountryInfo.tvCapital.text = post.countryCapital.ifEmpty { "N/A" }
+            binding.includeCountryInfo.tvCurrency.text = post.countryCurrency.ifEmpty { "N/A" }
+            binding.includeCountryInfo.tvPopulation.text = post.countryPopulation.ifEmpty { "N/A" }
+            binding.includeCountryInfo.tvLanguages.text = post.countryLanguages.ifEmpty { "N/A" }
 
             // ── Enhanced Weather Details ──
             val temp = post.temperature.ifEmpty { null }
             val condition = post.weatherCondition.ifEmpty { null }
 
             if (temp != null) {
-                binding.tvTemperature.text = "${temp}°C"
+                binding.includeWeatherCard.tvTemperature.text = "${temp}°C"
             } else {
-                binding.tvTemperature.text = "N/A"
+                binding.includeWeatherCard.tvTemperature.text = "N/A"
             }
 
             if (condition != null) {
-                binding.tvWeatherCondition.text = condition
+                binding.includeWeatherCard.tvWeatherCondition.text = condition
             } else {
-                binding.tvWeatherCondition.text = "N/A"
+                binding.includeWeatherCard.tvWeatherCondition.text = "N/A"
             }
 
             if (post.weatherIcon.isNotEmpty()) {
                 val iconUrl = "https://openweathermap.org/img/wn/${post.weatherIcon}@2x.png"
-                binding.ivWeatherIcon.visibility = View.VISIBLE
+                binding.includeWeatherCard.ivWeatherIcon.visibility = View.VISIBLE
                 Picasso.get()
                     .load(iconUrl)
                     .placeholder(android.R.drawable.ic_menu_compass)
                     .error(android.R.drawable.ic_menu_report_image)
                     .fit()
                     .centerInside()
-                    .into(binding.ivWeatherIcon)
+                    .into(binding.includeWeatherCard.ivWeatherIcon)
             } else {
-                binding.ivWeatherIcon.visibility = View.GONE
+                binding.includeWeatherCard.ivWeatherIcon.visibility = View.GONE
             }
 
-            binding.tvWindSpeed.text = if (post.windSpeed.isNotEmpty()) {
+            binding.includeWeatherCard.tvWindSpeed.text = if (post.windSpeed.isNotEmpty()) {
                 "${post.windSpeed} km/h"
             } else {
                 "N/A"
             }
 
-            binding.tvHumidity.text = if (post.humidity.isNotEmpty()) {
+            binding.includeWeatherCard.tvHumidity.text = if (post.humidity.isNotEmpty()) {
                 "${post.humidity}%"
             } else {
                 "N/A"

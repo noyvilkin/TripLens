@@ -3,6 +3,7 @@ package com.colman.triplens.data.repo
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
+import com.colman.triplens.BuildConfig
 import com.colman.triplens.data.local.PostDao
 import com.colman.triplens.data.model.Comment
 import com.colman.triplens.data.model.Post
@@ -25,7 +26,6 @@ class PostRepository(private val postDao: PostDao) {
 
     companion object {
         private const val TAG = "PostRepository"
-        private const val WEATHER_API_KEY = "732ac5d8063c73f2138ed054fe94510e"
     }
 
     val allPosts: LiveData<List<Post>> = postDao.getAllPosts()
@@ -61,7 +61,7 @@ class PostRepository(private val postDao: PostDao) {
     suspend fun fetchWeatherData(city: String): WeatherResult? {
         return withContext(Dispatchers.IO) {
             try {
-                val response = weatherService.getWeather(city, WEATHER_API_KEY)
+                val response = weatherService.getWeather(city, BuildConfig.OPENWEATHER_API_KEY)
                 val temp = "%.1f".format(response.main.temp)
                 val condition = response.weather.firstOrNull()?.main ?: ""
                 val icon = response.weather.firstOrNull()?.icon ?: ""

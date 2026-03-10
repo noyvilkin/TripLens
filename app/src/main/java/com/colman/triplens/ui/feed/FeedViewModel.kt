@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import com.colman.triplens.data.local.AppDatabase
 import com.colman.triplens.data.model.Post
 import com.colman.triplens.data.repo.PostRepository
+import com.colman.triplens.data.util.SeedDataManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,6 +28,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private val repository: PostRepository
+    private val seedDataManager: SeedDataManager
     val posts: LiveData<List<Post>>
 
     private val _isLoading = MutableLiveData<Boolean>()
@@ -35,6 +37,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     init {
         val postDao = AppDatabase.getDatabase(application).postDao()
         repository = PostRepository(postDao)
+        seedDataManager = SeedDataManager(application)
         posts = repository.allPosts
 
         viewModelScope.launch {
@@ -43,16 +46,23 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
                 // Try to refresh from Firestore first
                 repository.refreshPosts()
 
-                // If DB is still empty after Firestore sync, generate initial data
+                // Only generate initial data if:
+                // 1. DB is empty after Firestore sync
+                // 2. Seed data has never been generated before (persistent flag)
                 val currentPosts = withContext(Dispatchers.IO) {
                     repository.allPosts.value
                 }
-                if (currentPosts.isNullOrEmpty()) {
+                if (currentPosts.isNullOrEmpty() && !seedDataManager.isSeedGenerated()) {
                     generateInitialData()
+                    seedDataManager.markSeedGenerated()
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "Init failed, generating local data: ${e.message}")
-                generateInitialData()
+                Log.w(TAG, "Init failed: ${e.message}")
+                // Only generate seed data if not already generated
+                if (!seedDataManager.isSeedGenerated()) {
+                    generateInitialData()
+                    seedDataManager.markSeedGenerated()
+                }
             }
             _isLoading.value = false
         }
