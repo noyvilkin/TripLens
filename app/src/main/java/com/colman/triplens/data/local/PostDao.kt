@@ -12,6 +12,9 @@ interface PostDao {
     @Query("SELECT * FROM posts ORDER BY timestamp DESC")
     fun getAllPosts(): LiveData<List<Post>>
 
+    @Query("SELECT * FROM posts ORDER BY timestamp DESC")
+    suspend fun getAllPostsSync(): List<Post>
+
     @Query("SELECT * FROM posts WHERE userId = :userId ORDER BY timestamp DESC")
     fun getPostsByUserId(userId: String): LiveData<List<Post>>
 

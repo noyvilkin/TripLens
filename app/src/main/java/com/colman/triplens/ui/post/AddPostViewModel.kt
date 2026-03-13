@@ -30,8 +30,12 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
     val countryNames: LiveData<List<String>> = _countryNames
 
     init {
-        val dao = AppDatabase.getDatabase(application).postDao()
-        repository = PostRepository(dao)
+        val db = AppDatabase.getDatabase(application)
+        repository = PostRepository(
+            postDao = db.postDao(),
+            commentDao = db.commentDao(),
+            countryDao = db.countryDao()
+        )
 
         // Fetch country names on init (runs once, cached afterwards)
         viewModelScope.launch {

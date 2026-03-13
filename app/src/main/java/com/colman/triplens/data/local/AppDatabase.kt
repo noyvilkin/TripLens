@@ -6,9 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.colman.triplens.data.model.Post
 
-@Database(entities = [Post::class], version = 4, exportSchema = false)
+@Database(
+    entities = [Post::class, CommentEntity::class, CountryNameEntity::class],
+    version = 5,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
+    abstract fun commentDao(): CommentDao
+    abstract fun countryDao(): CountryDao
 
     companion object {
         @Volatile

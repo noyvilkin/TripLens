@@ -35,31 +35,49 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     val isLoading: LiveData<Boolean> get() = _isLoading
 
     init {
-        val postDao = AppDatabase.getDatabase(application).postDao()
-        repository = PostRepository(postDao)
+        val db = AppDatabase.getDatabase(application)
+        val postDao = db.postDao()
+        repository = PostRepository(
+            postDao = postDao,
+            commentDao = db.commentDao(),
+            countryDao = db.countryDao()
+        )
         seedDataManager = SeedDataManager(application)
         posts = repository.allPosts
 
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                Log.d(TAG, "Initializing FeedViewModel...")
+
                 // Try to refresh from Firestore first
+                Log.d(TAG, "Refreshing from Firestore...")
                 repository.refreshPosts()
 
-                // Only generate initial data if:
-                // 1. DB is empty after Firestore sync
-                // 2. Seed data has never been generated before (persistent flag)
-                val currentPosts = withContext(Dispatchers.IO) {
-                    repository.allPosts.value
+                // Check if posts exist after Firestore sync
+                val currentPosts: List<Post> = withContext(Dispatchers.IO) {
+                    postDao.getAllPostsSync()
                 }
-                if (currentPosts.isNullOrEmpty() && !seedDataManager.isSeedGenerated()) {
+
+                val seedGenerated = seedDataManager.isSeedGenerated()
+                Log.d(TAG, "Posts count: ${currentPosts.size}, Seed generated: $seedGenerated")
+
+                // Generate seed data if:
+                // 1. No posts exist after Firestore sync
+                // 2. Seed flag is false (never generated)
+                if (currentPosts.isEmpty() && !seedGenerated) {
+                    Log.d(TAG, "Generating seed data (15 posts)...")
                     generateInitialData()
                     seedDataManager.markSeedGenerated()
+                    Log.d(TAG, "Seed data generated successfully!")
+                } else {
+                    Log.d(TAG, "Skipping seed generation (posts exist or already generated)")
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "Init failed: ${e.message}")
-                // Only generate seed data if not already generated
+                Log.e(TAG, "Init failed: ${e.message}", e)
+                // Fallback: generate seed data if not already generated
                 if (!seedDataManager.isSeedGenerated()) {
+                    Log.d(TAG, "Generating seed data as fallback...")
                     generateInitialData()
                     seedDataManager.markSeedGenerated()
                 }
@@ -70,10 +88,12 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun generateInitialData() {
         withContext(Dispatchers.IO) {
+            Log.d(TAG, "Creating 15 initial posts...")
             val initialPosts = (1..15).map { i ->
                 val dest = SAMPLE_DESTINATIONS.getOrElse(i - 1) { "France" }
                 Post(
-                    id = "post_$i",
+                    id = "seed_post_${System.currentTimeMillis()}_$i",
+                    userId = "seed_user",
                     userName = "Traveler $i",
                     title = "Adventure in $dest",
                     description = "Exploring the beauty of $dest.",
@@ -95,21 +115,38 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
 
-            // Save initial posts to Room first (so UI shows something)
+            Log.d(TAG, "Saving ${initialPosts.size} posts to Room cache...")
+            // Save to Room first (immediate display)
             repository.addPostsToCache(initialPosts)
 
-            // Then enrich each post with real API data in the background
+            Log.d(TAG, "Saving posts to Firebase...")
+            // Save to Firebase so they persist across reinstalls
             initialPosts.forEach { post ->
                 try {
+                    repository.savePost(post)
+                    Log.d(TAG, "Saved post ${post.id} to Firebase")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to save post ${post.id} to Firebase: ${e.message}", e)
+                }
+            }
+
+            Log.d(TAG, "Enriching posts with API data in background...")
+            // Then enrich each post with real API data in the background
+            initialPosts.forEachIndexed { index, post ->
+                try {
+                    Log.d(TAG, "Enriching post ${index + 1}/15: ${post.destination}")
                     val enriched = repository.enrichPostWithApiData(post)
                     if (enriched != post) {
-                        repository.addPostsToCache(listOf(enriched))
+                        repository.savePost(enriched) // Update in Firebase
+                        repository.addPostsToCache(listOf(enriched)) // Update in Room
+                        Log.d(TAG, "Enriched post ${post.id}")
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to enrich post ${post.id}: ${e.message}")
                     // Non-fatal — the post still displays with placeholders
                 }
             }
+            Log.d(TAG, "Seed data generation complete!")
         }
     }
 }
