@@ -1,0 +1,11 @@
+## This file is a template for local.properties
+# Copy this to local.properties and fill in your API keys
+# DO NOT commit local.properties to version control!
+
+# Location of the Android SDK
+sdk.dir=YOUR_SDK_PATH_HERE
+
+# ── API Keys (REQUIRED) ──────────────────────────────────
+# OpenWeather API Key - Get yours at: https://openweathermap.org/api
+OPENWEATHER_API_KEY=your_openweather_api_key_here
+

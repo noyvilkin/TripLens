@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Reusable Country Info Grid (Capital, Currency, Population, Languages) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:baselineAligned="false">
+
+    <!-- Row 1: Capital & Currency -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:layout_marginBottom="8dp">
+
+        <!-- Capital Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardCapital"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#F5F5F5"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📍 Capital"
+                    android:textSize="10sp"
+                    android:textColor="#79747E"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCapital"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#1C1B1F"
+                    android:layout_marginTop="4dp"
+                    android:textStyle="bold"
+                    tools:text="Tokyo" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Currency Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardCurrency"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#F5F5F5"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="💱 Currency"
+                    android:textSize="10sp"
+                    android:textColor="#79747E"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCurrency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#1C1B1F"
+                    android:layout_marginTop="4dp"
+                    android:textStyle="bold"
+                    tools:text="¥ Japanese yen" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <!-- Row 2: Population & Languages -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <!-- Population Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPopulation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#F5F5F5"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👥 Population"
+                    android:textSize="10sp"
+                    android:textColor="#79747E"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvPopulation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#1C1B1F"
+                    android:layout_marginTop="4dp"
+                    android:textStyle="bold"
+                    tools:text="123.2M" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Languages Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardLanguages"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#F5F5F5"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🗣️ Languages"
+                    android:textSize="10sp"
+                    android:textColor="#79747E"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvLanguages"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#1C1B1F"
+                    android:layout_marginTop="4dp"
+                    android:textStyle="bold"
+                    tools:text="Japanese" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</LinearLayout>
+

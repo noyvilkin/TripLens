@@ -1,8 +1,7 @@
 package com.colman.triplens.data.model
 
 /**
- * Comment model stored as a Firestore sub-collection under each post.
- * Not persisted in Room — always fetched in real-time from Firestore.
+ * Comment model stored in Firestore (source of truth) and cached in Room for offline reads.
  */
 data class Comment(
     val id: String = "",

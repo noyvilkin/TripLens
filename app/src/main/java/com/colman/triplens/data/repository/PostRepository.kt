@@ -3,17 +3,26 @@ package com.colman.triplens.data.repo
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
+import com.colman.triplens.BuildConfig
+import com.colman.triplens.data.local.CommentDao
+import com.colman.triplens.data.local.CommentEntity
+import com.colman.triplens.data.local.CountryDao
+import com.colman.triplens.data.local.CountryNameEntity
 import com.colman.triplens.data.local.PostDao
 import com.colman.triplens.data.model.Comment
 import com.colman.triplens.data.model.Post
 import com.colman.triplens.data.models.CloudinaryModel
 import com.colman.triplens.data.remote.RetrofitClient
+import com.colman.triplens.data.util.CountryList
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -21,11 +30,14 @@ import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class PostRepository(private val postDao: PostDao) {
+class PostRepository(
+    private val postDao: PostDao,
+    private val commentDao: CommentDao,
+    private val countryDao: CountryDao
+) {
 
     companion object {
         private const val TAG = "PostRepository"
-        private const val WEATHER_API_KEY = "732ac5d8063c73f2138ed054fe94510e"
     }
 
     val allPosts: LiveData<List<Post>> = postDao.getAllPosts()
@@ -61,7 +73,7 @@ class PostRepository(private val postDao: PostDao) {
     suspend fun fetchWeatherData(city: String): WeatherResult? {
         return withContext(Dispatchers.IO) {
             try {
-                val response = weatherService.getWeather(city, WEATHER_API_KEY)
+                val response = weatherService.getWeather(city, BuildConfig.OPENWEATHER_API_KEY)
                 val temp = "%.1f".format(response.main.temp)
                 val condition = response.weather.firstOrNull()?.main ?: ""
                 val icon = response.weather.firstOrNull()?.icon ?: ""
@@ -101,26 +113,40 @@ class PostRepository(private val postDao: PostDao) {
 
     /**
      * Fetch the full list of country names from RestCountries API.
-     * Results are cached in memory so the network call only happens once per session.
-     * Falls back to a small built-in list if the API is unreachable.
+     * Returns Room-cached names first, then network. Falls back to a built-in list.
      */
     suspend fun fetchAllCountryNames(): List<String> {
-        // Return cached list if available
         cachedCountryNames?.let { return it }
 
         return withContext(Dispatchers.IO) {
+            val cachedDbNames = countryDao.getAllCountryNames()
+            if (cachedDbNames.isNotEmpty()) {
+                cachedCountryNames = cachedDbNames
+                return@withContext cachedDbNames
+            }
+
             try {
                 val response = countryService.getAllCountries()
                 val names = response
                     .mapNotNull { it.name?.common }
+                    .distinct()
                     .sorted()
+
+                countryDao.clearCountryNames()
+                countryDao.insertCountryNames(names.map { CountryNameEntity(it) })
+
                 cachedCountryNames = names
                 Log.d(TAG, "Fetched ${names.size} country names from API")
                 names
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to fetch country list from API: ${e.message}")
-                // Return the small fallback list
-                com.colman.triplens.data.util.CountryList.FALLBACK_COUNTRIES
+                val fallback = CountryList.FALLBACK_COUNTRIES.sorted()
+                if (fallback.isNotEmpty()) {
+                    countryDao.clearCountryNames()
+                    countryDao.insertCountryNames(fallback.map { CountryNameEntity(it) })
+                }
+                cachedCountryNames = fallback
+                fallback
             }
         }
     }
@@ -291,10 +317,17 @@ class PostRepository(private val postDao: PostDao) {
     // ── Comments (Firestore sub-collection, real-time) ───────────
 
     /**
-     * Returns a Flow that emits comment lists in real-time
-     * from Firestore's posts/{postId}/comments sub-collection.
+     * Returns comments from Room cache while syncing Firestore updates into Room.
      */
     fun getCommentsFlow(postId: String): Flow<List<Comment>> = callbackFlow {
+        val roomJob = launch {
+            commentDao.getCommentsByPostId(postId)
+                .map { comments -> comments.map { it.toDomain() } }
+                .collectLatest { comments ->
+                    trySend(comments)
+                }
+        }
+
         val ref = firestore.collection("posts")
             .document(postId)
             .collection("comments")
@@ -303,20 +336,29 @@ class PostRepository(private val postDao: PostDao) {
         val listener = ref.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 Log.w(TAG, "Comments listener error: ${error.message}")
-                trySend(emptyList())
                 return@addSnapshotListener
             }
-            val comments = snapshot?.documents?.mapNotNull { doc ->
+
+            val remoteComments = snapshot?.documents?.mapNotNull { doc ->
                 doc.toObject(Comment::class.java)
             } ?: emptyList()
-            trySend(comments)
+
+            launch(Dispatchers.IO) {
+                commentDao.replaceCommentsForPost(
+                    postId,
+                    remoteComments.map { it.toEntity() }
+                )
+            }
         }
 
-        awaitClose { listener.remove() }
+        awaitClose {
+            listener.remove()
+            roomJob.cancel()
+        }
     }
 
     /**
-     * Add a comment to a post's Firestore sub-collection.
+     * Add a comment to Firestore and cache it locally for offline reads.
      */
     suspend fun addComment(comment: Comment) {
         withContext(Dispatchers.IO) {
@@ -327,6 +369,8 @@ class PostRepository(private val postDao: PostDao) {
                     .document(comment.id)
                     .set(comment)
                     .await()
+
+                commentDao.insertComment(comment.toEntity())
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to add comment: ${e.message}")
                 throw e
@@ -362,4 +406,24 @@ data class CountryResult(
     val currency: String,
     val flagUrl: String,
     val languages: String
+)
+
+private fun Comment.toEntity(): CommentEntity = CommentEntity(
+    id = id,
+    postId = postId,
+    userId = userId,
+    userName = userName,
+    userProfileImage = userProfileImage,
+    text = text,
+    timestamp = timestamp
+)
+
+private fun CommentEntity.toDomain(): Comment = Comment(
+    id = id,
+    postId = postId,
+    userId = userId,
+    userName = userName,
+    userProfileImage = userProfileImage,
+    text = text,
+    timestamp = timestamp
 )

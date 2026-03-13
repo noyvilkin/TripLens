@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Reusable Weather Card -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardWeather"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#F5F5F5"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Weather"
+                android:textSize="11sp"
+                android:textColor="#79747E"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp">
+
+                <ImageView
+                    android:id="@+id/ivWeatherIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:padding="8dp"
+                    android:background="@drawable/bg_weather_icon"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Weather icon"
+                    tools:src="@android:drawable/ic_dialog_info" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:id="@+id/tvTemperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="#1C1B1F"
+                        android:textStyle="bold"
+                        tools:text="24°C" />
+
+                    <TextView
+                        android:id="@+id/tvWeatherCondition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="#79747E"
+                        tools:text="Clear" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Wind Speed -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💨"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/tvWindSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#1C1B1F"
+                android:layout_marginTop="4dp"
+                android:textStyle="bold"
+                tools:text="8 km/h" />
+        </LinearLayout>
+
+        <!-- Humidity -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💧"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/tvHumidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#1C1B1F"
+                android:layout_marginTop="4dp"
+                android:textStyle="bold"
+                tools:text="55%" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+

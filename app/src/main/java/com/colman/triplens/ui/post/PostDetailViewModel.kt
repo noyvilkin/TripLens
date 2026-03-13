@@ -22,8 +22,12 @@ class PostDetailViewModel(application: Application) : AndroidViewModel(applicati
     private val repository: PostRepository
 
     init {
-        val dao = AppDatabase.getDatabase(application).postDao()
-        repository = PostRepository(dao)
+        val db = AppDatabase.getDatabase(application)
+        repository = PostRepository(
+            postDao = db.postDao(),
+            commentDao = db.commentDao(),
+            countryDao = db.countryDao()
+        )
     }
 
     // ── Post Data ────────────────────────────────────────────────
