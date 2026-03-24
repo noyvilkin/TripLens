@@ -34,9 +34,18 @@ android {
             }
         }
 
-        // Add API key to BuildConfig
+        // Add API keys to BuildConfig
         val apiKey = localProperties.getProperty("OPENWEATHER_API_KEY") ?: ""
         buildConfigField("String", "OPENWEATHER_API_KEY", "\"$apiKey\"")
+
+        val cloudName = localProperties.getProperty("CLOUDINARY_CLOUD_NAME") ?: ""
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"$cloudName\"")
+
+        val cloudApiKey = localProperties.getProperty("CLOUDINARY_API_KEY") ?: ""
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"$cloudApiKey\"")
+
+        val cloudApiSecret = localProperties.getProperty("CLOUDINARY_API_SECRET") ?: ""
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"$cloudApiSecret\"")
     }
 
     buildTypes {

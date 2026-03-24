@@ -9,3 +9,7 @@ sdk.dir=YOUR_SDK_PATH_HERE
 # OpenWeather API Key - Get yours at: https://openweathermap.org/api
 OPENWEATHER_API_KEY=your_openweather_api_key_here
 
+# Cloudinary - Get yours at: https://cloudinary.com/console
+CLOUDINARY_CLOUD_NAME=your_cloud_name_here
+CLOUDINARY_API_KEY=your_api_key_here
+CLOUDINARY_API_SECRET=your_api_secret_here
