@@ -58,12 +58,16 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val postDeleted: LiveData<Boolean> = _postDeleted
 
     init {
-        val dao = AppDatabase.getDatabase(application).postDao()
-        repository = PostRepository(dao)
+        val db = AppDatabase.getDatabase(application)
+        repository = PostRepository(
+            postDao = db.postDao(),
+            commentDao = db.commentDao(),
+            countryDao = db.countryDao()
+        )
 
         // Set up the userId to trigger user posts query
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        if (uid.isNotBlank()) {
             _userId.value = uid
         }
     }
@@ -74,7 +78,11 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun refreshUser() {
         val user = FirebaseAuth.getInstance().currentUser
         _currentUser.value = user
-        user?.uid?.let { _userId.value = it }
+
+        val uid = user?.uid.orEmpty()
+        if (uid.isNotBlank()) {
+            _userId.value = uid
+        }
     }
 
     /**

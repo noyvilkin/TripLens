@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -21,6 +24,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Read API key from local.properties
+        val localPropertiesFile = rootProject.file("local.properties")
+        val localProperties = Properties()
+        if (localPropertiesFile.exists()) {
+            FileInputStream(localPropertiesFile).use { stream ->
+                localProperties.load(stream)
+            }
+        }
+
+        // Add API key to BuildConfig
+        val apiKey = localProperties.getProperty("OPENWEATHER_API_KEY") ?: ""
+        buildConfigField("String", "OPENWEATHER_API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -35,6 +51,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {

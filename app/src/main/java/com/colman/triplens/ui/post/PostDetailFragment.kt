@@ -148,31 +148,31 @@ class PostDetailFragment : Fragment() {
 
         // ── Country Info Cards ──
         if (post.countryCapital.isNotEmpty()) {
-            binding.cardCapital.visibility = View.VISIBLE
-            binding.tvCapital.text = post.countryCapital
+            binding.includeCountryInfo.cardCapital.visibility = View.VISIBLE
+            binding.includeCountryInfo.tvCapital.text = post.countryCapital
         } else {
-            binding.cardCapital.visibility = View.GONE
+            binding.includeCountryInfo.cardCapital.visibility = View.GONE
         }
 
         if (post.countryCurrency.isNotEmpty()) {
-            binding.cardCurrency.visibility = View.VISIBLE
-            binding.tvCurrency.text = post.countryCurrency
+            binding.includeCountryInfo.cardCurrency.visibility = View.VISIBLE
+            binding.includeCountryInfo.tvCurrency.text = post.countryCurrency
         } else {
-            binding.cardCurrency.visibility = View.GONE
+            binding.includeCountryInfo.cardCurrency.visibility = View.GONE
         }
 
         if (post.countryPopulation.isNotEmpty()) {
-            binding.cardPopulation.visibility = View.VISIBLE
-            binding.tvPopulation.text = post.countryPopulation
+            binding.includeCountryInfo.cardPopulation.visibility = View.VISIBLE
+            binding.includeCountryInfo.tvPopulation.text = post.countryPopulation
         } else {
-            binding.cardPopulation.visibility = View.GONE
+            binding.includeCountryInfo.cardPopulation.visibility = View.GONE
         }
 
         if (post.countryLanguages.isNotEmpty()) {
-            binding.cardLanguages.visibility = View.VISIBLE
-            binding.tvLanguages.text = post.countryLanguages
+            binding.includeCountryInfo.cardLanguages.visibility = View.VISIBLE
+            binding.includeCountryInfo.tvLanguages.text = post.countryLanguages
         } else {
-            binding.cardLanguages.visibility = View.GONE
+            binding.includeCountryInfo.cardLanguages.visibility = View.GONE
         }
 
         // ── Weather ──
@@ -182,55 +182,55 @@ class PostDetailFragment : Fragment() {
         val windSpeed = post.windSpeed.ifEmpty { null }
 
         if (temp != null || condition != null) {
-            binding.cardWeather.visibility = View.VISIBLE
+            binding.includeWeatherCard.cardWeather.visibility = View.VISIBLE
 
             // Temperature
             if (temp != null) {
-                binding.tvTemperature.text = "${temp}°C"
-                binding.tvTemperature.visibility = View.VISIBLE
+                binding.includeWeatherCard.tvTemperature.text = "${temp}°C"
+                binding.includeWeatherCard.tvTemperature.visibility = View.VISIBLE
             } else {
-                binding.tvTemperature.visibility = View.GONE
+                binding.includeWeatherCard.tvTemperature.visibility = View.GONE
             }
 
             // Condition
             if (condition != null) {
-                binding.tvWeatherCondition.text = condition
-                binding.tvWeatherCondition.visibility = View.VISIBLE
+                binding.includeWeatherCard.tvWeatherCondition.text = condition
+                binding.includeWeatherCard.tvWeatherCondition.visibility = View.VISIBLE
             } else {
-                binding.tvWeatherCondition.visibility = View.GONE
+                binding.includeWeatherCard.tvWeatherCondition.visibility = View.GONE
             }
 
             // Weather icon
             if (post.weatherIcon.isNotEmpty()) {
                 val iconUrl = "https://openweathermap.org/img/wn/${post.weatherIcon}@2x.png"
-                binding.ivWeatherIcon.visibility = View.VISIBLE
+                binding.includeWeatherCard.ivWeatherIcon.visibility = View.VISIBLE
                 Picasso.get()
                     .load(iconUrl)
                     .placeholder(android.R.drawable.ic_menu_day)
                     .error(android.R.drawable.ic_menu_day)
-                    .into(binding.ivWeatherIcon)
+                    .into(binding.includeWeatherCard.ivWeatherIcon)
             } else {
-                binding.ivWeatherIcon.visibility = View.VISIBLE
-                binding.ivWeatherIcon.setImageResource(android.R.drawable.ic_menu_day)
+                binding.includeWeatherCard.ivWeatherIcon.visibility = View.VISIBLE
+                binding.includeWeatherCard.ivWeatherIcon.setImageResource(android.R.drawable.ic_menu_day)
             }
 
             // Humidity
             if (humidity != null) {
-                binding.tvHumidity.text = humidity
-                binding.tvHumidity.visibility = View.VISIBLE
+                binding.includeWeatherCard.tvHumidity.text = humidity
+                binding.includeWeatherCard.tvHumidity.visibility = View.VISIBLE
             } else {
-                binding.tvHumidity.visibility = View.GONE
+                binding.includeWeatherCard.tvHumidity.visibility = View.GONE
             }
 
             // Wind speed
             if (windSpeed != null) {
-                binding.tvWindSpeed.text = windSpeed
-                binding.tvWindSpeed.visibility = View.VISIBLE
+                binding.includeWeatherCard.tvWindSpeed.text = windSpeed
+                binding.includeWeatherCard.tvWindSpeed.visibility = View.VISIBLE
             } else {
-                binding.tvWindSpeed.visibility = View.GONE
+                binding.includeWeatherCard.tvWindSpeed.visibility = View.GONE
             }
         } else {
-            binding.cardWeather.visibility = View.GONE
+            binding.includeWeatherCard.cardWeather.visibility = View.GONE
         }
     }
 
