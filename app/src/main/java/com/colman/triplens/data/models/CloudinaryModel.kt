@@ -2,6 +2,7 @@ package com.colman.triplens.data.models
 
 import android.net.Uri
 import com.cloudinary.android.MediaManager
+import com.colman.triplens.BuildConfig
 import com.colman.triplens.base.MyApplication
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,9 +17,9 @@ class CloudinaryModel {
     init {
         if (!isInitialized) {
             val config = mapOf(
-                "cloud_name" to "doenqjp4c",
-                "api_key" to "937292938273937",
-                "api_secret" to "cOxRY8T4K1NCJlZ33XWVvhtzlQY"
+                "cloud_name" to BuildConfig.CLOUDINARY_CLOUD_NAME,
+                "api_key" to BuildConfig.CLOUDINARY_API_KEY,
+                "api_secret" to BuildConfig.CLOUDINARY_API_SECRET
             )
             MyApplication.appContext?.let {
                 MediaManager.init(it, config)

@@ -41,3 +41,8 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Firebase Admin SDK credentials
+scripts/serviceAccountKey.json
+scripts/*firebase-adminsdk*.json
+scripts/node_modules/
