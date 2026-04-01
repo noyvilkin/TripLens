@@ -29,11 +29,18 @@ class FeedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[FeedViewModel::class.java]
         setupRecyclerView()
+        setupSwipeRefresh()
         setupObservers()
 
         binding.fabAddPost.setOnClickListener {
             val action = FeedFragmentDirections.actionFeedFragmentToAddPostFragment()
             findNavController().navigate(action)
+        }
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.refreshPostsManually()
         }
     }
 
@@ -53,7 +60,8 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            // Show/hide SwipeRefreshLayout refresh animation
+            binding.swipeRefreshLayout.isRefreshing = isLoading
         }
     }
 

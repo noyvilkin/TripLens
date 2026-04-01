@@ -20,6 +20,8 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
 
+    private var isInitialized = false
+
     init {
         val db = AppDatabase.getDatabase(application)
         repository = PostRepository(
@@ -29,15 +31,40 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         )
         posts = repository.allPosts
 
+        // Only refresh on first ViewModel creation, not on every Fragment view
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                Log.d(TAG, "Refreshing posts from Firestore...")
+                Log.d(TAG, "Refreshing posts from Firestore (initial load)...")
                 repository.refreshPosts()
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh posts: ${e.message}", e)
+            } finally {
+                _isLoading.value = false
+                isInitialized = true
             }
-            _isLoading.value = false
+        }
+    }
+
+    /**
+     * Manual refresh triggered by user (e.g., pull-to-refresh)
+     */
+    fun refreshPostsManually() {
+        if (_isLoading.value == true) {
+            // Prevent multiple simultaneous refresh requests
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                Log.d(TAG, "Refreshing posts from Firestore (manual refresh)...")
+                repository.refreshPosts()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to refresh posts: ${e.message}", e)
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 }
