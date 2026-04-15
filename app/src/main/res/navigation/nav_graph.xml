@@ -22,7 +22,7 @@
         android:id="@+id/action_global_feedFragment"
         app:destination="@id/feedFragment"
         app:popUpTo="@id/feedFragment"
-        app:popUpToInclusive="true" />
+        app:popUpToInclusive="false" />
 
     <fragment
         android:id="@+id/loginFragment"
@@ -85,7 +85,7 @@
             android:id="@+id/action_addPostFragment_to_feedFragment"
             app:destination="@id/feedFragment"
             app:popUpTo="@id/feedFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment

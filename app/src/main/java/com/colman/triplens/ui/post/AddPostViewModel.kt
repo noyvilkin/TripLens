@@ -166,26 +166,24 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
                 // 3. Save post immediately for better UX (no waiting for API enrichment)
                 repository.savePost(post)
 
-                _isLoading.postValue(false)
-                _postCreated.postValue(true)
-
-                // 4. Enrich with Weather & Country data in background (non-blocking)
-                //    This happens after navigation, improving perceived performance
+                // 4. Enrich with Weather & Country data BEFORE navigation
+                //    This ensures enriched data is visible when user returns to Feed
                 if (destination.isNotBlank()) {
-                    viewModelScope.launch {
-                        try {
-                            val enrichedPost = withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) {
-                                repository.enrichPostWithApiData(post)
-                            }
-                            if (enrichedPost != null && enrichedPost != post) {
-                                repository.savePost(enrichedPost)  // Update with enriched data
-                            }
-                        } catch (e: Exception) {
-                            // Silent failure - post is already saved, enrichment is bonus
-                            Log.w("AddPostVM", "Background enrichment failed: ${e.message}")
+                    try {
+                        val enrichedPost = withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) {
+                            repository.enrichPostWithApiData(post)
                         }
+                        if (enrichedPost != null && enrichedPost != post) {
+                            repository.savePost(enrichedPost)  // Update with enriched data
+                        }
+                    } catch (e: Exception) {
+                        // Silent failure - post is already saved, enrichment is bonus
+                        Log.w("AddPostVM", "Enrichment failed before navigation: ${e.message}")
                     }
                 }
+
+                _isLoading.postValue(false)
+                _postCreated.postValue(true)
             } catch (e: Exception) {
                 _isLoading.postValue(false)
                 _error.postValue(e.message ?: "Failed to save post")
