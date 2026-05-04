@@ -17,7 +17,7 @@ object CountryList {
     val FALLBACK_COUNTRIES: List<String> = listOf(
         "Argentina", "Australia", "Austria", "Belgium", "Brazil",
         "Canada", "Chile", "China", "Colombia", "Croatia",
-        "Czech Republic", "Denmark", "Egypt", "Finland", "France",
+        "Czechia", "Denmark", "Egypt", "Finland", "France",
         "Germany", "Greece", "Hungary", "Iceland", "India",
         "Indonesia", "Ireland", "Israel", "Italy", "Japan",
         "Jordan", "Kenya", "Malaysia", "Mexico", "Morocco",

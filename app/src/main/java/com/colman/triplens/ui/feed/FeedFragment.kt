@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.colman.triplens.databinding.FragmentFeedBinding
 
 class FeedFragment : Fragment() {
@@ -52,6 +53,14 @@ class FeedFragment : Fragment() {
         }
         binding.recyclerViewFeed.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewFeed.adapter = adapter
+
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if (positionStart == 0) {
+                    binding.recyclerViewFeed.scrollToPosition(0)
+                }
+            }
+        })
     }
 
     private fun setupObservers() {
